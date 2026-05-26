@@ -1,0 +1,12 @@
+[package]
+name = "markdown_to_pdf_cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "md2pdf"
+path = "src/main.rs"
+
+[dependencies]
+markdown_to_pdf_core = { path = "../core" }
+markdown_to_pdf_renderer = { path = "../renderer" }
