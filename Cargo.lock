@@ -622,6 +622,7 @@ name = "markdown_to_pdf_core"
 version = "0.1.0"
 dependencies = [
  "comrak",
+ "pretty_assertions",
  "serde",
  "serde_json",
  "thiserror",
