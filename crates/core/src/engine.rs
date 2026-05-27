@@ -1,4 +1,4 @@
-use crate::{parse_markdown, MarkdownDocument, MarkdownError};
+use crate::{parse_markdown, LayoutDocument, MarkdownDocument, MarkdownError};
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct MarkdownEngine;
@@ -14,5 +14,9 @@ impl MarkdownEngine {
 
     pub fn read_source(&self, markdown: &str) -> Result<String, MarkdownError> {
         Ok(self.read(markdown)?.source)
+    }
+
+    pub fn compile(&self, markdown: &str) -> Result<LayoutDocument, MarkdownError> {
+        Ok(self.read(markdown)?.layout)
     }
 }
