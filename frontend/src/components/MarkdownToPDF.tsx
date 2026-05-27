@@ -5,9 +5,31 @@ interface FileData {
   content: string;
 }
 
+const DEFAULT_CONTENT = `# Getting Started
+
+Welcome to **MarkdownPDF**. Here's a quick example:
+
+## Code Example
+
+\`\`\`bash
+curl "http://iranet-api:8000/servers/server-01/install-command?database_dsn=postgresql%2Basyncpg%3A%2F%2Firanet%3Apass%40db.example.com%3A5432%2Firanet&backend_base_url=http%3A%2F%2F10.0.0.21%3A8000&server_name=Production%2001&environment=production&capabilities=system,processes,services,logs,packages,users,metrics"
+\`\`\`
+
+## Features
+
+- **Bold** and *italic* text
+- Lists and headings
+- Code blocks with proper wrapping
+
+Try editing this content!
+`;
+
 export default function MarkdownToPDF() {
-  const [file, setFile] = useState<FileData | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
+  const [content, setContent] = useState(DEFAULT_CONTENT);
+  const [file, setFile] = useState<FileData | null>({
+    name: "untitled.md",
+    content: DEFAULT_CONTENT,
+  });
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
@@ -34,31 +56,14 @@ export default function MarkdownToPDF() {
 
     const reader = new FileReader();
     reader.onload = (e) => {
+      const text = e.target?.result as string;
+      setContent(text);
       setFile({
         name: selectedFile.name,
-        content: e.target?.result as string,
+        content: text,
       });
     };
     reader.readAsText(selectedFile);
-  }, []);
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      setIsDragging(false);
-      const droppedFile = e.dataTransfer.files[0];
-      if (droppedFile) handleFile(droppedFile);
-    },
-    [handleFile]
-  );
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragLeave = useCallback(() => {
-    setIsDragging(false);
   }, []);
 
   const handleInputChange = useCallback(
@@ -71,158 +76,35 @@ export default function MarkdownToPDF() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-      <div className="grid grid-cols-[1fr_4px_1fr] min-h-screen">
+      <div className="grid grid-cols-[minmax(0,1fr)_4px_minmax(0,1fr)] min-h-screen">
         <div
-          className="p-12 flex flex-col transition-colors duration-300"
+          className="min-w-0 p-12 flex flex-col transition-colors duration-300"
           style={{ backgroundColor: 'var(--bg-primary)' }}
         >
-          <header className="flex items-center justify-between mb-16">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-[#E85D04] flex items-center justify-center">
-                <span className="font-bold text-xl text-white">M</span>
-              </div>
+          <header className="mb-12">
+            <div className="h-1 bg-[#E85D04] mb-8" />
+            <div className="flex items-start justify-between">
               <div>
                 <h1
-                  className="font-serif text-2xl font-bold tracking-tight"
+                  className="font-serif text-4xl font-bold tracking-tight"
                   style={{ color: 'var(--text-primary)' }}
                 >
                   MARKDOWN
                 </h1>
-                <p className="text-xs tracking-widest uppercase" style={{ color: 'var(--text-secondary)' }}>
+                <p className="text-xs tracking-widest uppercase mt-1" style={{ color: 'var(--text-secondary)' }}>
                   Editor
                 </p>
               </div>
-            </div>
-            <div className="flex items-center gap-4">
-              {file && (
-                <button
-                  onClick={() => setFile(null)}
-                  className="group flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[#1A1A1A] dark:hover:bg-white"
-                  style={{ borderColor: 'var(--text-primary)' }}
-                >
-                  <svg
-                    className="w-4 h-4 group-hover:text-white dark:group-hover:text-[#1A1A1A] transition-colors"
-                    style={{ color: 'var(--text-primary)' }}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                  <span
-                    className="font-mono text-sm group-hover:text-white dark:group-hover:text-[#1A1A1A] transition-colors"
-                    style={{ color: 'var(--text-primary)' }}
-                  >
-                    Clear
-                  </span>
-                </button>
-              )}
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className="w-12 h-12 border-2 flex items-center justify-center transition-all hover:bg-[#1A1A1A] dark:hover:bg-white"
-                style={{ borderColor: 'var(--text-primary)' }}
-              >
-                {darkMode ? (
-                  <svg
-                    className="w-5 h-5"
-                    style={{ color: 'var(--text-primary)' }}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    className="w-5 h-5"
-                    style={{ color: 'var(--text-primary)' }}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-                    />
-                  </svg>
-                )}
-              </button>
-            </div>
-          </header>
-
-          {!file ? (
-            <div className="flex-1 flex flex-col items-center justify-center">
-              <div
-                className={`relative w-full max-w-lg border-[3px] p-20 transition-all duration-300 cursor-pointer ${
-                  isDragging ? "border-[#E85D04] bg-[#E85D04]/5 scale-105" : ""
-                }`}
-                style={{
-                  borderColor: isDragging ? '#E85D04' : 'var(--border-color)',
-                  backgroundColor: 'var(--bg-tertiary)'
-                }}
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-              >
-                <input
-                  type="file"
-                  accept=".md"
-                  onChange={handleInputChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-                <div className="flex flex-col items-center text-center">
-                  <div
-                    className="w-24 h-24 border-[3px] flex items-center justify-center mb-8 transition-all duration-300"
-                    style={{
-                      borderColor: isDragging ? '#E85D04' : 'var(--border-color)',
-                      backgroundColor: '#F5F0E8'
-                    }}
+              <div className="flex items-center gap-3 pt-2">
+                {file && (
+                  <button
+                    onClick={() => setFile(null)}
+                    className="group flex items-center gap-2 px-3 py-2 border-2 transition-all hover:bg-[#1A1A1A] dark:hover:bg-white"
+                    style={{ borderColor: 'var(--text-primary)' }}
                   >
                     <svg
-                      className="w-12 h-12 transition-colors duration-300"
-                      style={{ color: isDragging ? '#E85D04' : 'var(--text-primary)' }}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                      />
-                    </svg>
-                  </div>
-                  <h2
-                    className="text-3xl font-bold mb-3 tracking-tight"
-                    style={{ color: 'var(--text-primary)' }}
-                  >
-                    {isDragging ? "Release" : "Drop File"}
-                  </h2>
-                  <p
-                    className="mb-8 text-lg"
-                    style={{ color: 'var(--text-secondary)' }}
-                  >
-                    {isDragging ? "to upload your markdown" : "Drag & drop or click to browse"}
-                  </p>
-                  <div
-                    className="flex items-center gap-3 px-5 py-3"
-                    style={{ backgroundColor: 'var(--text-primary)' }}
-                  >
-                    <svg
-                      className="w-4 h-4 text-[#E85D04]"
+                      className="w-4 h-4 group-hover:text-white dark:group-hover:text-[#1A1A1A] transition-colors"
+                      style={{ color: 'var(--text-primary)' }}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -231,21 +113,58 @@ export default function MarkdownToPDF() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        d="M6 18L18 6M6 6l12 12"
                       />
                     </svg>
                     <span
-                      className="font-mono text-sm"
-                      style={{ color: darkMode ? '#1A1A1A' : '#ffffff' }}
+                      className="font-mono text-xs group-hover:text-white dark:group-hover:text-[#1A1A1A] transition-colors"
+                      style={{ color: 'var(--text-primary)' }}
                     >
-                      .md files only
+                      Clear
                     </span>
-                  </div>
-                </div>
+                  </button>
+                )}
+                <button
+                  onClick={() => setDarkMode(!darkMode)}
+                  className="theme-toggle w-10 h-10 border-2 flex items-center justify-center transition-all hover:bg-[#1A1A1A] dark:hover:bg-white"
+                  style={{ borderColor: 'var(--text-primary)', color: darkMode ? '#ffffff' : 'var(--text-primary)' }}
+                >
+                  {darkMode ? (
+                    <svg
+                      className="w-4 h-4 transition-colors"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-4 h-4 transition-colors"
+                      style={{ color: 'var(--text-primary)' }}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                      />
+                    </svg>
+                  )}
+                </button>
               </div>
             </div>
-          ) : (
-            <div className="flex-1 flex flex-col">
+          </header>
+
+          <div className="min-w-0 flex-1 flex flex-col">
               <div className="flex items-center gap-4 mb-6">
                 <div
                   className="w-10 h-10 flex items-center justify-center"
@@ -266,35 +185,73 @@ export default function MarkdownToPDF() {
                     />
                   </svg>
                 </div>
-                <div>
-                  <span
-                    className="font-mono text-base font-medium"
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={file?.name || 'untitled.md'}
+                    onChange={(e) => setFile((prev) => prev ? { ...prev, name: e.target.value } : { name: e.target.value, content })}
+                    className="font-mono text-base font-medium bg-transparent outline-none"
                     style={{ color: 'var(--text-primary)' }}
-                  >
-                    {file.name}
-                  </span>
+                  />
                   <p style={{ color: 'var(--text-secondary)' }}>
-                    {file.content.split("\n").length} lines
+                    {content.split("\n").length} lines
                   </p>
                 </div>
+                <label
+                  className="flex items-center gap-2 px-4 py-2 border-2 cursor-pointer transition-all hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)]"
+                  style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                  <span className="font-mono text-sm">Load</span>
+                  <input
+                    type="file"
+                    accept=".md"
+                    onChange={handleInputChange}
+                    className="hidden"
+                  />
+                </label>
+                <button
+                  onClick={() => {
+                    setContent(DEFAULT_CONTENT);
+                    setFile({ name: "untitled.md", content: DEFAULT_CONTENT });
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)]"
+                  style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span className="font-mono text-sm">Reset</span>
+                </button>
               </div>
               <div
-                className="flex-1 border-[3px] p-8 overflow-auto transition-colors duration-300"
+                className="min-w-0 flex-1 border-[3px] transition-colors duration-300"
                 style={{
                   borderColor: 'var(--border-color)',
                   backgroundColor: 'var(--bg-tertiary)',
                   boxShadow: darkMode ? '6px 6px 0 0 #ffffff' : '6px 6px 0 0 #1A1A1A'
                 }}
               >
-                <pre
-                  className="font-mono text-sm leading-loose whitespace-pre-wrap"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  {file.content}
-                </pre>
+                <textarea
+                  value={content}
+                  onChange={(e) => {
+                    setContent(e.target.value);
+                    if (file) {
+                      setFile((prev) => prev ? { ...prev, content: e.target.value } : null);
+                    }
+                  }}
+                  className="w-full h-full p-8 resize-none outline-none font-mono text-sm leading-loose bg-transparent"
+                  style={{
+                    color: 'var(--text-primary)',
+                    overflowWrap: 'anywhere',
+                    wordBreak: 'break-all'
+                  }}
+                  spellCheck={false}
+                />
               </div>
             </div>
-          )}
 
           <footer
             className="mt-auto pt-8 flex items-center justify-between"
@@ -318,51 +275,37 @@ export default function MarkdownToPDF() {
         />
 
         <div
-          className="p-12 flex flex-col transition-colors duration-300"
+          className="min-w-0 p-12 flex flex-col transition-colors duration-300"
           style={{ backgroundColor: 'var(--bg-primary)' }}
         >
-          <header className="flex items-center justify-between mb-16">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-[#E85D04] flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
+          <header className="mb-12">
+            <div className="h-1 bg-[#E85D04] mb-8" />
+            <div className="flex items-start justify-between">
               <div>
                 <h1
-                  className="font-serif text-2xl font-bold tracking-tight"
+                  className="font-serif text-4xl font-bold tracking-tight"
                   style={{ color: 'var(--text-primary)' }}
                 >
                   PDF
                 </h1>
-                <p className="text-xs tracking-widest uppercase" style={{ color: 'var(--text-secondary)' }}>
+                <p className="text-xs tracking-widest uppercase mt-1" style={{ color: 'var(--text-secondary)' }}>
                   Preview
                 </p>
               </div>
+              <span
+                className="px-3 py-1 text-xs font-mono"
+                style={{
+                  backgroundColor: 'var(--text-primary)',
+                  color: darkMode ? '#1A1A1A' : '#ffffff'
+                }}
+              >
+                MOCK
+              </span>
             </div>
-            <span
-              className="px-3 py-1 text-xs font-mono"
-              style={{
-                backgroundColor: 'var(--text-primary)',
-                color: darkMode ? '#1A1A1A' : '#ffffff'
-              }}
-            >
-              MOCK
-            </span>
           </header>
 
-          <div className="flex-1 overflow-auto">
-            {!file ? (
+            <div className="min-w-0 flex-1 overflow-auto">
+            {!content.trim() ? (
               <div className="h-full flex items-center justify-center">
                 <div className="text-center">
                   <div
@@ -472,11 +415,9 @@ export default function MarkdownToPDF() {
                   >
                     Code Example
                   </h2>
-                  <pre className="bg-[#1A1A1A] text-[#F5F0E8] p-5 font-mono text-sm mb-6 overflow-x-auto">
-                    {`function greet(name) {
+                  <pre className="max-w-full min-w-0 bg-[#1A1A1A] text-[#F5F0E8] p-5 font-mono text-sm mb-6 whitespace-pre-wrap break-all"><code>{`function greet(name) {
   return \`Hello, \${name}!\`;
-}`}
-                  </pre>
+}`}</code></pre>
                   <h2
                     className="text-2xl font-bold mb-4 pb-2 border-b-2"
                     style={{ color: '#1A1A1A', borderColor: '#1A1A1A' }}
@@ -502,7 +443,7 @@ export default function MarkdownToPDF() {
             )}
           </div>
 
-          {file && (
+          {content.trim() && (
             <div
               className="mt-8 pt-8"
               style={{ borderTopColor: 'var(--border-muted)' }}
@@ -517,6 +458,7 @@ export default function MarkdownToPDF() {
               >
                 <svg
                   className="w-6 h-6"
+                  style={{ color: '#ffffff' }}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

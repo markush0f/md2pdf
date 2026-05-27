@@ -14,8 +14,36 @@ body {
   font-family: var(--font-serif);
 }
 
-code, pre, .font-mono {
-  font-family: var(--font-mono);
+pre {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+
+pre code {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  white-space: inherit;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+
+code:not(pre code) {
+  max-width: 100%;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.dark .theme-toggle:hover svg {
+  color: #1A1A1A !important;
+}
+
+.theme-toggle:hover svg {
+  color: #ffffff !important;
 }
 
 :root {
