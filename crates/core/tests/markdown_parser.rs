@@ -1,4 +1,4 @@
-use markdown_to_pdf_core::{parse_markdown, MarkdownError};
+use markdown_to_pdf_core::{parse_markdown, MarkdownEngine, MarkdownError};
 use pretty_assertions::assert_eq;
 
 #[test]
@@ -35,4 +35,12 @@ fn rejects_empty_input() {
     let error = parse_markdown("   \n\t").unwrap_err();
 
     assert_eq!(error, MarkdownError::EmptyInput);
+}
+
+#[test]
+fn engine_reads_markdown_and_returns_source() {
+    let source = "# Hello\n\nBody";
+    let output = MarkdownEngine::new().read_source(source).unwrap();
+
+    assert_eq!(output, source);
 }
