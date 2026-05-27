@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-:root {
+@theme {
   --font-serif: 'Fraunces', Georgia, serif;
   --font-sans: 'Outfit', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -16,4 +16,8 @@ body {
 
 code, pre, .font-mono {
   font-family: var(--font-mono);
+}
+
+.dark {
+  color-scheme: dark;
 }

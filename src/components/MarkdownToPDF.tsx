@@ -20,9 +20,9 @@ export default function MarkdownToPDF() {
   useEffect(() => {
     localStorage.setItem("darkMode", JSON.stringify(darkMode));
     if (darkMode) {
-      document.documentElement.classList.add("dark");
+      document.documentElement.setAttribute("data-theme", "dark");
     } else {
-      document.documentElement.classList.remove("dark");
+      document.documentElement.setAttribute("data-theme", "light");
     }
   }, [darkMode]);
 
@@ -70,7 +70,10 @@ export default function MarkdownToPDF() {
   );
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8] dark:bg-[#0A0A0A] transition-colors duration-300">
+    <div
+      data-theme={darkMode ? "dark" : "light"}
+      className="min-h-screen bg-[#F5F0E8] dark:bg-[#0A0A0A] transition-colors duration-300"
+    >
       <div className="grid grid-cols-[1fr_4px_1fr] min-h-screen">
         <div className="bg-[#FDFBF7] dark:bg-[#111111] p-12 flex flex-col transition-colors duration-300">
           <header className="flex items-center justify-between mb-16">
@@ -117,7 +120,7 @@ export default function MarkdownToPDF() {
               >
                 {darkMode ? (
                   <svg
-                    className="w-5 h-5 text-white"
+                    className="w-5 h-5 text-white dark:text-[#1A1A1A]"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -131,7 +134,7 @@ export default function MarkdownToPDF() {
                   </svg>
                 ) : (
                   <svg
-                    className="w-5 h-5 text-[#1A1A1A]"
+                    className="w-5 h-5 text-[#1A1A1A] dark:text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -319,7 +322,7 @@ export default function MarkdownToPDF() {
               </div>
             ) : (
               <div className="bg-white dark:bg-[#FDFBF7] shadow-[16px_16px_0_0_#1A1A1A] dark:shadow-[16px_16px_0_0_#ffffff] transition-colors duration-300">
-                <div className="bg-[#1A1A1A] dark:bg-[#1A1A1A] px-10 py-8">
+                <div className="bg-[#1A1A1A] px-10 py-8">
                   <h1 className="text-4xl font-bold text-white mb-2 font-serif">
                     The Art of Writing
                   </h1>
