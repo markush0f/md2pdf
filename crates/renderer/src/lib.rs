@@ -1,4 +1,8 @@
+mod pdf;
+
 use minijinja::{context, Environment};
+
+pub use pdf::PdfRenderer;
 
 pub struct Renderer {
     template: String,

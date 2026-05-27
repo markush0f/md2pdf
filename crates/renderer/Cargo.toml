@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+markdown_to_pdf_core = { path = "../core" }
 minijinja = "2.0"
 html-escape = "0.2"
 serde = { version = "1.0", features = ["derive"] }
