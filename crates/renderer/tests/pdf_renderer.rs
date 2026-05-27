@@ -8,6 +8,13 @@ fn renders_layout_document_to_pdf_bytes() {
     let output = String::from_utf8(pdf).unwrap();
 
     assert!(output.starts_with("%PDF-1.4"));
-    assert!(output.contains("% text x=40 y=40 size=24: Title"));
+    assert!(output.contains("/Type /Catalog"));
+    assert!(output.contains("/Type /Pages"));
+    assert!(output.contains("/Type /Page"));
+    assert!(output.contains("/BaseFont /Helvetica"));
+    assert!(output.contains("BT /F1 24 Tf 40 802 Td (Title) Tj ET"));
+    assert!(output.contains("xref"));
+    assert!(output.contains("trailer"));
+    assert!(output.contains("startxref"));
     assert!(output.ends_with("%%EOF\n"));
 }
