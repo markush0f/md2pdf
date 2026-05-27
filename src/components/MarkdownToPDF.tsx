@@ -176,106 +176,106 @@ export default function MarkdownToPDF() {
             </span>
           </div>
 
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-full max-w-md">
-              {!file ? (
+          <div className="flex-1 overflow-auto">
+            {!file ? (
+              <div className="h-full flex items-center justify-center">
                 <div className="text-center">
-                  <div className="w-full h-80 border-[3px] border-dashed border-stone-300 flex items-center justify-center mb-6 bg-stone-50">
+                  <div className="w-64 h-80 border-[3px] border-dashed border-stone-300 flex items-center justify-center mb-4 bg-stone-50">
                     <p className="text-stone-400 font-mono text-sm">
                       Upload a file to see preview
                     </p>
                   </div>
                 </div>
-              ) : (
-                <div className="bg-white shadow-[8px_8px_0_0_#1A1A1A]">
-                  <div className="bg-[#1A1A1A] px-6 py-5">
-                    <h1 className="text-2xl font-bold text-white mb-0.5 font-serif">
-                      The Art of Writing
-                    </h1>
-                    <p className="text-stone-400 text-xs">
-                      A Journey Through Words
+              </div>
+            ) : (
+              <div className="bg-white shadow-[12px_12px_0_0_#1A1A1A] mx-8">
+                <div className="bg-[#1A1A1A] px-8 py-6">
+                  <h1 className="text-3xl font-bold text-white mb-1 font-serif">
+                    The Art of Writing
+                  </h1>
+                  <p className="text-stone-400 text-sm">
+                    A Journey Through Words
+                  </p>
+                </div>
+                <div className="px-8 py-6">
+                  <h2 className="text-xl font-bold text-[#1A1A1A] mb-3 pb-1 border-b-2 border-[#1A1A1A]">
+                    Introduction
+                  </h2>
+                  <p className="text-stone-700 leading-relaxed mb-4">
+                    Writing is a journey through the landscapes of thought.
+                    Every word choices matter, every sentence breathes.
+                  </p>
+                  <h2 className="text-xl font-bold text-[#1A1A1A] mb-3 pb-1 border-b-2 border-[#1A1A1A]">
+                    The Process
+                  </h2>
+                  <ol className="space-y-3 mb-4">
+                    <li className="flex items-center gap-3">
+                      <span className="w-6 h-6 bg-[#E85D04] text-white flex items-center justify-center text-sm font-bold">
+                        1
+                      </span>
+                      <span>
+                        <strong>Brainstorm</strong> — Gather thoughts
+                      </span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <span className="w-6 h-6 bg-[#E85D04] text-white flex items-center justify-center text-sm font-bold">
+                        2
+                      </span>
+                      <span>
+                        <strong>Outline</strong> — Structure narrative
+                      </span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <span className="w-6 h-6 bg-[#E85D04] text-white flex items-center justify-center text-sm font-bold">
+                        3
+                      </span>
+                      <span>
+                        <strong>Draft</strong> — Let words flow
+                      </span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <span className="w-6 h-6 bg-[#E85D04] text-white flex items-center justify-center text-sm font-bold">
+                        4
+                      </span>
+                      <span>
+                        <strong>Revise</strong> — Polish it shines
+                      </span>
+                    </li>
+                  </ol>
+                  <blockquote className="bg-[#F5F0E8] p-4 mb-4 border-l-4 border-[#E85D04]">
+                    <p className="italic text-stone-700">
+                      "Words are, of course, the most powerful drug used by
+                      mankind."
                     </p>
-                  </div>
-                  <div className="px-6 py-5">
-                    <h2 className="text-lg font-bold text-[#1A1A1A] mb-2 pb-1 border-b-2 border-[#1A1A1A]">
-                      Introduction
-                    </h2>
-                    <p className="text-stone-700 text-sm leading-relaxed mb-4">
-                      Writing is a journey through the landscapes of thought.
-                      Every word choices matter, every sentence breathes.
-                    </p>
-                    <h2 className="text-lg font-bold text-[#1A1A1A] mb-2 pb-1 border-b-2 border-[#1A1A1A]">
-                      The Process
-                    </h2>
-                    <ol className="space-y-2 mb-4">
-                      <li className="flex items-center gap-2">
-                        <span className="w-5 h-5 bg-[#E85D04] text-white flex items-center justify-center text-xs font-bold">
-                          1
-                        </span>
-                        <span className="text-sm">
-                          <strong>Brainstorm</strong> — Gather thoughts
-                        </span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-5 h-5 bg-[#E85D04] text-white flex items-center justify-center text-xs font-bold">
-                          2
-                        </span>
-                        <span className="text-sm">
-                          <strong>Outline</strong> — Structure narrative
-                        </span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-5 h-5 bg-[#E85D04] text-white flex items-center justify-center text-xs font-bold">
-                          3
-                        </span>
-                        <span className="text-sm">
-                          <strong>Draft</strong> — Let words flow
-                        </span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-5 h-5 bg-[#E85D04] text-white flex items-center justify-center text-xs font-bold">
-                          4
-                        </span>
-                        <span className="text-sm">
-                          <strong>Revise</strong> — Polish it shines
-                        </span>
-                      </li>
-                    </ol>
-                    <blockquote className="bg-[#F5F0E8] p-3 mb-4 border-l-4 border-[#E85D04]">
-                      <p className="italic text-stone-700 text-sm">
-                        "Words are, of course, the most powerful drug used by
-                        mankind."
-                      </p>
-                      <cite className="text-xs text-stone-500 mt-1 block">
-                        — Rudyard Kipling
-                      </cite>
-                    </blockquote>
-                    <h2 className="text-lg font-bold text-[#1A1A1A] mb-2 pb-1 border-b-2 border-[#1A1A1A]">
-                      Code Example
-                    </h2>
-                    <pre className="bg-[#1A1A1A] text-[#F5F0E8] p-3 font-mono text-xs mb-4 overflow-x-auto">
-                      {`function greet(name) {
+                    <cite className="text-sm text-stone-500 mt-2 block">
+                      — Rudyard Kipling
+                    </cite>
+                  </blockquote>
+                  <h2 className="text-xl font-bold text-[#1A1A1A] mb-3 pb-1 border-b-2 border-[#1A1A1A]">
+                    Code Example
+                  </h2>
+                  <pre className="bg-[#1A1A1A] text-[#F5F0E8] p-4 font-mono text-sm mb-4 overflow-x-auto">
+                    {`function greet(name) {
   return \`Hello, \${name}!\`;
 }`}
-                    </pre>
-                    <h2 className="text-lg font-bold text-[#1A1A1A] mb-2 pb-1 border-b-2 border-[#1A1A1A]">
-                      Conclusion
-                    </h2>
-                    <p className="text-stone-700 text-sm leading-relaxed">
-                      Remember: <em>Writing is rewriting</em>.
-                    </p>
-                    <div className="flex items-center justify-between pt-4 mt-4 border-t border-stone-200">
-                      <span className="text-[10px] text-stone-400 font-mono">
-                        MarkdownPDF
-                      </span>
-                      <span className="text-[10px] text-stone-400 font-mono">
-                        Page 1 of 1
-                      </span>
-                    </div>
+                  </pre>
+                  <h2 className="text-xl font-bold text-[#1A1A1A] mb-3 pb-1 border-b-2 border-[#1A1A1A]">
+                    Conclusion
+                  </h2>
+                  <p className="text-stone-700 leading-relaxed">
+                    Remember: <em>Writing is rewriting</em>.
+                  </p>
+                  <div className="flex items-center justify-between pt-6 mt-6 border-t border-stone-200">
+                    <span className="text-xs text-stone-400 font-mono">
+                      MarkdownPDF
+                    </span>
+                    <span className="text-xs text-stone-400 font-mono">
+                      Page 1 of 1
+                    </span>
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {file && (
