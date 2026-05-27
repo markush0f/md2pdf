@@ -1,2 +1,10 @@
 /target
-/samples
+/Cargo.lock
+*.toml.backup
+.agents/
+skills-lock.json
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
