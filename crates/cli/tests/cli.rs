@@ -2,10 +2,8 @@ use std::{fs, process::Command};
 
 #[test]
 fn converts_markdown_file_to_pdf_file() {
-    let temp_dir = std::env::temp_dir().join(format!(
-        "markdown-to-pdf-cli-test-{}",
-        std::process::id()
-    ));
+    let temp_dir =
+        std::env::temp_dir().join(format!("markdown-to-pdf-cli-test-{}", std::process::id()));
     fs::create_dir_all(&temp_dir).unwrap();
 
     let input_path = temp_dir.join("input.md");
@@ -18,7 +16,11 @@ fn converts_markdown_file_to_pdf_file() {
         .output()
         .unwrap();
 
-    assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
+    assert!(
+        output.status.success(),
+        "stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
 
     let pdf = fs::read(&output_path).unwrap();
     assert!(pdf.starts_with(b"%PDF-1.4"));
@@ -44,7 +46,11 @@ fn defaults_output_to_input_name_with_pdf_extension() {
         .output()
         .unwrap();
 
-    assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
+    assert!(
+        output.status.success(),
+        "stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
 
     let pdf = fs::read(&output_path).unwrap();
     assert!(pdf.starts_with(b"%PDF-1.4"));

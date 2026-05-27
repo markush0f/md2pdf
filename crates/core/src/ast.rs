@@ -5,8 +5,14 @@ pub struct MarkdownAst {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MarkdownBlock {
-    Heading { level: u8, text: String },
+    Heading {
+        level: u8,
+        text: String,
+    },
     Paragraph(String),
-    CodeBlock { language: Option<String>, code: String },
+    CodeBlock {
+        language: Option<String>,
+        code: String,
+    },
     List(Vec<String>),
 }

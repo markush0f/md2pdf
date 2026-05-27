@@ -22,17 +22,41 @@ fn builds_ast_from_markdown() {
 
 #[test]
 fn builds_layout_from_ast() {
-    let layout = MarkdownEngine::new().compile("# Title\n\nA paragraph").unwrap();
+    let layout = MarkdownEngine::new()
+        .compile("# Title\n\nA paragraph")
+        .unwrap();
 
     assert_eq!(layout.pages.len(), 1);
     assert_eq!(layout.pages[0].number, 1);
     assert_eq!(
         layout.pages[0].elements[0],
         LayoutElement::Text {
-            x: 40.0,
-            y: 40.0,
-            font_size: 24.0,
+            x: 56.0,
+            y: 64.0,
+            font_size: 28.0,
             content: "Title".to_string(),
+        }
+    );
+}
+
+#[test]
+fn paginates_long_documents() {
+    let markdown = (1..=40)
+        .map(|index| format!("Paragraph {index}"))
+        .collect::<Vec<_>>()
+        .join("\n\n");
+    let layout = MarkdownEngine::new().compile(&markdown).unwrap();
+
+    assert!(layout.pages.len() > 1);
+    assert_eq!(layout.pages[0].number, 1);
+    assert_eq!(layout.pages[1].number, 2);
+    assert_eq!(
+        layout.pages[1].elements[0],
+        LayoutElement::Text {
+            x: 56.0,
+            y: 64.0,
+            font_size: 12.0,
+            content: "Paragraph 26".to_string(),
         }
     );
 }

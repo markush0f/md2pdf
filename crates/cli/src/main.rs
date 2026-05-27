@@ -23,7 +23,11 @@ fn main() -> ExitCode {
 fn run(args: impl IntoIterator<Item = OsString>) -> Result<(), CliError> {
     let args: Vec<OsString> = args.into_iter().collect();
 
-    if !(2..=3).contains(&args.len()) || args.get(1).is_some_and(|arg| arg == "--help" || arg == "-h") {
+    if !(2..=3).contains(&args.len())
+        || args
+            .get(1)
+            .is_some_and(|arg| arg == "--help" || arg == "-h")
+    {
         return Err(CliError::Usage {
             program: args
                 .first()
@@ -77,7 +81,9 @@ enum CliError {
 impl fmt::Display for CliError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Usage { program } => write!(formatter, "usage: {program} <input.md> [output.pdf]"),
+            Self::Usage { program } => {
+                write!(formatter, "usage: {program} <input.md> [output.pdf]")
+            }
             Self::ReadInput { path, source } => {
                 write!(formatter, "failed to read {}: {source}", path.display())
             }
