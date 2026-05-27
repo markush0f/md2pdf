@@ -273,81 +273,83 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 25 0 R /F2 26 0 R /F3 27 0 R >> >> /Contents 12 0 R >>
 endobj
 12 0 obj
-<< /Length 2521 >>
+<< /Length 2572 >>
 stream
 1 1 1 rg
 0 0 595 842 re f
 0.10 0.18 0.30 rg
 BT /F2 16 Tf 48 794 Td (3. Single frontend host) Tj ET
 0.95 0.96 0.98 rg
-48 693.8 499 63 re f
+48 680.8 499 76 re f
 0.78 0.82 0.88 RG
-48 693.8 499 63 re S
+48 680.8 499 76 re S
 0.13 0.16 0.22 rg
 BT /F3 10 Tf 60 734.8 Td (cd docker) Tj ET
 0.13 0.16 0.22 rg
 BT /F3 10 Tf 60 721.8 Td (cp .env.frontend.example .env.frontend) Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 708.8 Td (docker compose --env-file .env.frontend -f compose.frontend.yml up -d --build) Tj ET
+BT /F3 10 Tf 60 708.8 Td (docker compose --env-file .env.frontend -f compose.frontend.yml up -d --buil) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 695.8 Td (d) Tj ET
 0.10 0.18 0.30 rg
-BT /F2 16 Tf 48 661.8 Td (Notes) Tj ET
+BT /F2 16 Tf 48 648.8 Td (Notes) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 632.6 Td (- compose.backend.yml is reused on every monitored server) Tj ET
+BT /F1 12 Tf 64 619.6 Td (- compose.backend.yml is reused on every monitored server) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 614.6 Td (- every backend uses the same PostgreSQL DSN) Tj ET
+BT /F1 12 Tf 64 601.6 Td (- every backend uses the same PostgreSQL DSN) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 596.6 Td (- the frontend only needs one backend URL for bootstrap) Tj ET
+BT /F1 12 Tf 64 583.6 Td (- the frontend only needs one backend URL for bootstrap) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 578.6 Td (- after bootstrap, the frontend can switch to the selected server backend URL) Tj ET
+BT /F1 12 Tf 64 565.6 Td (- after bootstrap, the frontend can switch to the selected server backend URL) Tj ET
 0.10 0.18 0.30 rg
-BT /F2 16 Tf 48 542.6 Td (Local all-in-one setup) Tj ET
+BT /F2 16 Tf 48 529.6 Td (Local all-in-one setup) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 513.4 Td (If you want to run everything on a single machine for development:) Tj ET
+BT /F1 12 Tf 48 500.4 Td (If you want to run everything on a single machine for development:) Tj ET
 0.95 0.96 0.98 rg
-48 373.4 499 102 re f
+48 360.4 499 102 re f
 0.78 0.82 0.88 RG
-48 373.4 499 102 re S
+48 360.4 499 102 re S
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 453.4 Td (cd docker) Tj ET
+BT /F3 10 Tf 60 440.4 Td (cd docker) Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 440.4 Td (docker compose \\) Tj ET
+BT /F3 10 Tf 60 427.4 Td (docker compose \\) Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 427.4 Td (  -f compose.db.yml \\) Tj ET
+BT /F3 10 Tf 60 414.4 Td (  -f compose.db.yml \\) Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 414.4 Td (  -f compose.backend.yml \\) Tj ET
+BT /F3 10 Tf 60 401.4 Td (  -f compose.backend.yml \\) Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 401.4 Td (  -f compose.frontend.yml \\) Tj ET
+BT /F3 10 Tf 60 388.4 Td (  -f compose.frontend.yml \\) Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 388.4 Td (  up -d --build) Tj ET
+BT /F3 10 Tf 60 375.4 Td (  up -d --build) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 359.4 Td (Or use the helper scripts:) Tj ET
+BT /F1 12 Tf 48 346.4 Td (Or use the helper scripts:) Tj ET
 0.95 0.96 0.98 rg
-48 258.40002 499 63 re f
+48 245.40002 499 63 re f
 0.78 0.82 0.88 RG
-48 258.40002 499 63 re S
+48 245.40002 499 63 re S
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 299.40002 Td (cd docker) Tj ET
+BT /F3 10 Tf 60 286.40002 Td (cd docker) Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 286.40002 Td (./up.sh) Tj ET
+BT /F3 10 Tf 60 273.40002 Td (./up.sh) Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 273.40002 Td (./down.sh) Tj ET
+BT /F3 10 Tf 60 260.40002 Td (./down.sh) Tj ET
 0.10 0.18 0.30 rg
-BT /F2 22 Tf 48 226.40002 Td (Backend Environment Variables) Tj ET
+BT /F2 22 Tf 48 213.40002 Td (Backend Environment Variables) Tj ET
 0.10 0.18 0.30 rg
-BT /F2 16 Tf 48 170 Td (Required) Tj ET
+BT /F2 16 Tf 48 157 Td (Required) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 140.79999 Td (| Variable | Description | |---|---| | IRA_DATABASE_DSN | Shared PostgreSQL) Tj ET
+BT /F1 12 Tf 48 127.79999 Td (| Variable | Description | |---|---| | IRA_DATABASE_DSN | Shared PostgreSQL) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 122.79999 Td (DSN, example postgresql+asyncpg://user:pass@db:5432/iranet | | IRA_SERVER_ID |) Tj ET
+BT /F1 12 Tf 48 109.79999 Td (DSN, example postgresql+asyncpg://user:pass@db:5432/iranet | | IRA_SERVER_ID |) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 104.79999 Td (Unique identifier for this backend/server |) Tj ET
+BT /F1 12 Tf 48 91.79999 Td (Unique identifier for this backend/server |) Tj ET
 endstream
 endobj
 13 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 25 0 R /F2 26 0 R /F3 27 0 R >> >> /Contents 14 0 R >>
 endobj
 14 0 obj
-<< /Length 2707 >>
+<< /Length 2759 >>
 stream
 1 1 1 rg
 0 0 595 842 re f
@@ -376,9 +378,9 @@ BT /F1 12 Tf 48 552.4 Td (Initially selected server |) Tj ET
 0.10 0.18 0.30 rg
 BT /F2 22 Tf 48 504.4 Td (Running The Backend Locally) Tj ET
 0.95 0.96 0.98 rg
-48 291 499 167 re f
+48 278 499 180 re f
 0.78 0.82 0.88 RG
-48 291 499 167 re S
+48 278 499 180 re S
 0.13 0.16 0.22 rg
 BT /F3 10 Tf 60 436 Td (cd ira) Tj ET
 0.13 0.16 0.22 rg
@@ -390,31 +392,33 @@ BT /F3 10 Tf 60 397 Td (pip install -r requirements.txt) Tj ET
 0.13 0.16 0.22 rg
 BT /F3 10 Tf 60 384 Td () Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 371 Td (export IRA_DATABASE_DSN="postgresql+asyncpg://user:password@localhost:5432/iranet") Tj ET
+BT /F3 10 Tf 60 371 Td (export IRA_DATABASE_DSN="postgresql+asyncpg://user:password@localhost:5432/i) Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 358 Td (export IRA_SERVER_ID="server-01") Tj ET
+BT /F3 10 Tf 60 358 Td (ranet") Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 345 Td (export IRA_SERVER_NAME="Server 01") Tj ET
+BT /F3 10 Tf 60 345 Td (export IRA_SERVER_ID="server-01") Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 332 Td (export IRA_AGENT_BASE_URL="http://127.0.0.1:8000") Tj ET
+BT /F3 10 Tf 60 332 Td (export IRA_SERVER_NAME="Server 01") Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 319 Td () Tj ET
+BT /F3 10 Tf 60 319 Td (export IRA_AGENT_BASE_URL="http://127.0.0.1:8000") Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 306 Td (python3 -m app.main) Tj ET
+BT /F3 10 Tf 60 306 Td () Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 293 Td (python3 -m app.main) Tj ET
 0.10 0.18 0.30 rg
-BT /F2 22 Tf 48 259 Td (Running The Frontend Locally) Tj ET
+BT /F2 22 Tf 48 246 Td (Running The Frontend Locally) Tj ET
 0.95 0.96 0.98 rg
-48 136.59998 499 76 re f
+48 123.599976 499 76 re f
 0.78 0.82 0.88 RG
-48 136.59998 499 76 re S
+48 123.599976 499 76 re S
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 190.59998 Td (cd frontend) Tj ET
+BT /F3 10 Tf 60 177.59998 Td (cd frontend) Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 177.59998 Td (npm install) Tj ET
+BT /F3 10 Tf 60 164.59998 Td (npm install) Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 164.59998 Td (export VITE_API_BASE_URL="http://localhost:8000") Tj ET
+BT /F3 10 Tf 60 151.59998 Td (export VITE_API_BASE_URL="http://localhost:8000") Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 151.59998 Td (npm run dev) Tj ET
+BT /F3 10 Tf 60 138.59998 Td (npm run dev) Tj ET
 endstream
 endobj
 15 0 obj
@@ -503,7 +507,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 25 0 R /F2 26 0 R /F3 27 0 R >> >> /Contents 18 0 R >>
 endobj
 18 0 obj
-<< /Length 2934 >>
+<< /Length 3122 >>
 stream
 1 1 1 rg
 0 0 595 842 re f
@@ -530,227 +534,255 @@ BT /F1 12 Tf 64 620 Td (- branch optional, only used to locate install.sh) Tj ET
 0.20 0.23 0.28 rg
 BT /F1 12 Tf 48 602 Td (Example:) Tj ET
 0.95 0.96 0.98 rg
-48 527 499 37 re f
+48 475 499 89 re f
 0.78 0.82 0.88 RG
-48 527 499 37 re S
+48 475 499 89 re S
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 542 Td (curl "http://iranet-api:8000/servers/server-01/install-command?database_dsn=postgresql%2Basyncpg%3A%2F%2Firanet%3Apass%40db.example.com%3A5432%2Firanet&backend_base_url=http%3A%2F%2F10.0.0.21%3A8000&server_name=Production%2001&environment=production&capabilities=system,processes,services,logs,packages,users,metrics") Tj ET
+BT /F3 10 Tf 60 542 Td (curl "http://iranet-api:8000/servers/server-01/install-command?database_dsn=) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 529 Td (postgresql%2Basyncpg%3A%2F%2Firanet%3Apass%40db.example.com%3A5432%2Firanet&) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 516 Td (backend_base_url=http%3A%2F%2F10.0.0.21%3A8000&server_name=Production%2001&e) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 503 Td (nvironment=production&capabilities=system,processes,services,logs,packages,u) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 490 Td (sers,metrics") Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 513 Td (The API returns a Docker-based install command that your own backend can) Tj ET
+BT /F1 12 Tf 48 461 Td (The API returns a Docker-based install command that your own backend can) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 495 Td (execute over SSH.) Tj ET
+BT /F1 12 Tf 48 443 Td (execute over SSH.) Tj ET
 0.10 0.18 0.30 rg
-BT /F2 16 Tf 48 447 Td (Step 3. Execute the command over SSH) Tj ET
+BT /F2 16 Tf 48 395 Td (Step 3. Execute the command over SSH) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 417.8 Td (Your frontend should not execute SSH directly. Your own backend should do that.) Tj ET
+BT /F1 12 Tf 48 365.8 Td (Your frontend should not execute SSH directly. Your own backend should do that.) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 387.8 Td (Recommended flow:) Tj ET
+BT /F1 12 Tf 48 335.8 Td (Recommended flow:) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 357.8 Td (- user clicks Install IRANet) Tj ET
+BT /F1 12 Tf 64 305.8 Td (- user clicks Install IRANet) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 339.8 Td (- your frontend calls your backend) Tj ET
+BT /F1 12 Tf 64 287.8 Td (- your frontend calls your backend) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 321.8 Td (- your backend requests /servers/{server_id}/install-command) Tj ET
+BT /F1 12 Tf 64 269.8 Td (- your backend requests /servers/{server_id}/install-command) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 303.8 Td (- your backend executes response.command over SSH on the target server) Tj ET
+BT /F1 12 Tf 64 251.79999 Td (- your backend executes response.command over SSH on the target server) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 285.8 Td (- your backend polls /servers/{server_id} until heartbeat is visible) Tj ET
+BT /F1 12 Tf 64 233.79999 Td (- your backend polls /servers/{server_id} until heartbeat is visible) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 267.8 Td (Pseudo-flow:) Tj ET
+BT /F1 12 Tf 48 215.79999 Td (Pseudo-flow:) Tj ET
 0.95 0.96 0.98 rg
-48 153.79999 499 76 re f
+48 88.79999 499 89 re f
 0.78 0.82 0.88 RG
-48 153.79999 499 76 re S
+48 88.79999 499 89 re S
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 207.79999 Td (const installResp = await fetch\(`${IRANET_API}/servers/${serverId}/install-command?...`\);) Tj ET
+BT /F3 10 Tf 60 155.79999 Td (const installResp = await fetch\(`${IRANET_API}/servers/${serverId}/install-c) Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 194.79999 Td (const installData = await installResp.json\(\);) Tj ET
+BT /F3 10 Tf 60 142.79999 Td (ommand?...`\);) Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 181.79999 Td () Tj ET
+BT /F3 10 Tf 60 129.79999 Td (const installData = await installResp.json\(\);) Tj ET
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 168.79999 Td (await ssh.execCommand\(installData.command\);) Tj ET
-0.10 0.18 0.30 rg
-BT /F2 16 Tf 48 121.79999 Td (Quick Start In English) Tj ET
+BT /F3 10 Tf 60 116.79999 Td () Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 103.79999 Td (await ssh.execCommand\(installData.command\);) Tj ET
 endstream
 endobj
 19 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 25 0 R /F2 26 0 R /F3 27 0 R >> >> /Contents 20 0 R >>
 endobj
 20 0 obj
-<< /Length 3155 >>
+<< /Length 2968 >>
 stream
 1 1 1 rg
 0 0 595 842 re f
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 794 Td (If you already have your own server management panel, this is the shortest) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 776 Td (installation flow for a remote server:) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 746 Td (- Create or update the server record in IRANet.) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 728 Td (- Request a Docker install command from IRANet.) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 710 Td (- Execute that command over SSH on the target server.) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 692 Td (- Wait for the backend heartbeat.) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 674 Td (Example:) Tj ET
-0.95 0.96 0.98 rg
-48 599 499 37 re f
-0.78 0.82 0.88 RG
-48 599 499 37 re S
-0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 614 Td (curl "http://iranet-api:8000/servers/server-01/install-command?database_dsn=postgresql%2Basyncpg%3A%2F%2Firanet%3Apass%40db.example.com%3A5432%2Firanet&backend_base_url=http%3A%2F%2F10.0.0.21%3A8000&server_name=Production%2001&environment=production&capabilities=system,processes,services,logs,packages,users,metrics") Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 585 Td (IRANet returns a command like this:) Tj ET
-0.95 0.96 0.98 rg
-48 510 499 37 re f
-0.78 0.82 0.88 RG
-48 510 499 37 re S
-0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 525 Td (curl -sL https://github.com/markush0f/IRANet/raw/main/ira/install.sh | bash -s -- --server-id server-01 --database-dsn postgresql+asyncpg://iranet:pass@db.example.com:5432/iranet --method pull --image ghcr.io/markush0f/iranet/ira-backend:latest --server-name "Production 01" --backend-base-url http://10.0.0.21:8000 --environment production --capabilities system,processes,services,logs,packages,users,metrics) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 496 Td (Then execute it on the remote server through SSH from your own backend.) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 466 Td (Check status on the target server:) Tj ET
-0.95 0.96 0.98 rg
-48 378 499 50 re f
-0.78 0.82 0.88 RG
-48 378 499 50 re S
-0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 406 Td (sudo systemctl status iranet-backend) Tj ET
-0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 393 Td (sudo journalctl -u iranet-backend -f) Tj ET
 0.10 0.18 0.30 rg
-BT /F2 16 Tf 48 346 Td (What the installer does) Tj ET
+BT /F2 16 Tf 48 794 Td (Quick Start In English) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 316.8 Td (The generated command downloads ira/install.sh, then:) Tj ET
+BT /F1 12 Tf 48 764.8 Td (If you already have your own server management panel, this is the shortest) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 286.8 Td (- pulls the Docker image) Tj ET
+BT /F1 12 Tf 48 746.8 Td (installation flow for a remote server:) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 268.8 Td (- creates or replaces the iranet-backend systemd service) Tj ET
+BT /F1 12 Tf 64 716.8 Td (- Create or update the server record in IRANet.) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 250.79999 Td (- sets all required IRANet environment variables) Tj ET
+BT /F1 12 Tf 64 698.8 Td (- Request a Docker install command from IRANet.) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 232.79999 Td (- starts the backend) Tj ET
+BT /F1 12 Tf 64 680.8 Td (- Execute that command over SSH on the target server.) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 214.79999 Td (- lets it register itself through heartbeat) Tj ET
-0.10 0.18 0.30 rg
-BT /F2 16 Tf 48 178.79999 Td (Docker image used) Tj ET
+BT /F1 12 Tf 64 662.8 Td (- Wait for the backend heartbeat.) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 149.59998 Td (Default image:) Tj ET
+BT /F1 12 Tf 48 644.8 Td (Example:) Tj ET
 0.95 0.96 0.98 rg
-48 74.599976 499 37 re f
+48 517.8 499 89 re f
 0.78 0.82 0.88 RG
-48 74.599976 499 37 re S
+48 517.8 499 89 re S
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 89.599976 Td (ghcr.io/markush0f/iranet/ira-backend:latest) Tj ET
+BT /F3 10 Tf 60 584.8 Td (curl "http://iranet-api:8000/servers/server-01/install-command?database_dsn=) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 571.8 Td (postgresql%2Basyncpg%3A%2F%2Firanet%3Apass%40db.example.com%3A5432%2Firanet&) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 558.8 Td (backend_base_url=http%3A%2F%2F10.0.0.21%3A8000&server_name=Production%2001&e) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 545.8 Td (nvironment=production&capabilities=system,processes,services,logs,packages,u) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 532.8 Td (sers,metrics") Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 48 503.8 Td (IRANet returns a command like this:) Tj ET
+0.95 0.96 0.98 rg
+48 363.8 499 102 re f
+0.78 0.82 0.88 RG
+48 363.8 499 102 re S
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 443.8 Td (curl -sL https://github.com/markush0f/IRANet/raw/main/ira/install.sh | bash ) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 430.8 Td (-s -- --server-id server-01 --database-dsn postgresql+asyncpg://iranet:pass@) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 417.8 Td (db.example.com:5432/iranet --method pull --image ghcr.io/markush0f/iranet/ir) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 404.8 Td (a-backend:latest --server-name "Production 01" --backend-base-url http://10.) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 391.8 Td (0.0.21:8000 --environment production --capabilities system,processes,service) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 378.8 Td (s,logs,packages,users,metrics) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 48 349.8 Td (Then execute it on the remote server through SSH from your own backend.) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 48 319.8 Td (Check status on the target server:) Tj ET
+0.95 0.96 0.98 rg
+48 231.79999 499 50 re f
+0.78 0.82 0.88 RG
+48 231.79999 499 50 re S
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 259.8 Td (sudo systemctl status iranet-backend) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 246.79999 Td (sudo journalctl -u iranet-backend -f) Tj ET
+0.10 0.18 0.30 rg
+BT /F2 16 Tf 48 199.79999 Td (What the installer does) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 48 170.59998 Td (The generated command downloads ira/install.sh, then:) Tj ET
 endstream
 endobj
 21 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 25 0 R /F2 26 0 R /F3 27 0 R >> >> /Contents 22 0 R >>
 endobj
 22 0 obj
-<< /Length 1844 >>
+<< /Length 1884 >>
 stream
 1 1 1 rg
 0 0 595 842 re f
-0.10 0.18 0.30 rg
-BT /F2 16 Tf 48 794 Td (Result on the target server) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 764.8 Td (The remote machine ends up with a systemd service named:) Tj ET
+BT /F1 12 Tf 64 794 Td (- pulls the Docker image) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 64 776 Td (- creates or replaces the iranet-backend systemd service) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 64 758 Td (- sets all required IRANet environment variables) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 64 740 Td (- starts the backend) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 64 722 Td (- lets it register itself through heartbeat) Tj ET
+0.10 0.18 0.30 rg
+BT /F2 16 Tf 48 686 Td (Docker image used) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 48 656.8 Td (Default image:) Tj ET
 0.95 0.96 0.98 rg
-48 689.8 499 37 re f
+48 581.8 499 37 re f
 0.78 0.82 0.88 RG
-48 689.8 499 37 re S
+48 581.8 499 37 re S
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 704.8 Td (iranet-backend) Tj ET
+BT /F3 10 Tf 60 596.8 Td (ghcr.io/markush0f/iranet/ira-backend:latest) Tj ET
+0.10 0.18 0.30 rg
+BT /F2 16 Tf 48 549.8 Td (Result on the target server) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 675.8 Td (Useful commands on the target server:) Tj ET
+BT /F1 12 Tf 48 520.6 Td (The remote machine ends up with a systemd service named:) Tj ET
 0.95 0.96 0.98 rg
-48 587.8 499 50 re f
+48 445.59998 499 37 re f
 0.78 0.82 0.88 RG
-48 587.8 499 50 re S
+48 445.59998 499 37 re S
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 615.8 Td (sudo systemctl status iranet-backend) Tj ET
+BT /F3 10 Tf 60 460.59998 Td (iranet-backend) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 48 431.59998 Td (Useful commands on the target server:) Tj ET
+0.95 0.96 0.98 rg
+48 343.59998 499 50 re f
+0.78 0.82 0.88 RG
+48 343.59998 499 50 re S
 0.13 0.16 0.22 rg
-BT /F3 10 Tf 60 602.8 Td (sudo journalctl -u iranet-backend -f) Tj ET
+BT /F3 10 Tf 60 371.59998 Td (sudo systemctl status iranet-backend) Tj ET
+0.13 0.16 0.22 rg
+BT /F3 10 Tf 60 358.59998 Td (sudo journalctl -u iranet-backend -f) Tj ET
 0.10 0.18 0.30 rg
-BT /F2 22 Tf 48 555.8 Td (Live vs Historical Data) Tj ET
+BT /F2 22 Tf 48 311.59998 Td (Live vs Historical Data) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 517.4 Td (This distinction is important.) Tj ET
+BT /F1 12 Tf 48 273.19995 Td (This distinction is important.) Tj ET
 0.10 0.18 0.30 rg
-BT /F2 16 Tf 48 469.4 Td (Live data) Tj ET
+BT /F2 16 Tf 48 225.19995 Td (Live data) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 440.19998 Td (Live endpoints must hit the selected backend directly.) Tj ET
+BT /F1 12 Tf 48 195.99994 Td (Live endpoints must hit the selected backend directly.) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 410.19998 Td (Examples:) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 380.19998 Td (- system snapshot) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 362.19998 Td (- running processes) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 344.19998 Td (- users) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 326.19995 Td (- package state) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 308.19995 Td (- application discovery) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 290.19995 Td (- log streaming) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 272.19995 Td (- runtime process inspection) Tj ET
-0.10 0.18 0.30 rg
-BT /F2 16 Tf 48 236.19995 Td (Historical data) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 206.99994 Td (Historical data is shared through PostgreSQL.) Tj ET
-0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 176.99994 Td (Examples:) Tj ET
+BT /F1 12 Tf 48 165.99994 Td (Examples:) Tj ET
 endstream
 endobj
 23 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 25 0 R /F2 26 0 R /F3 27 0 R >> >> /Contents 24 0 R >>
 endobj
 24 0 obj
-<< /Length 1560 >>
+<< /Length 2270 >>
 stream
 1 1 1 rg
 0 0 595 842 re f
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 794 Td (- stored metrics) Tj ET
+BT /F1 12 Tf 64 794 Td (- system snapshot) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 776 Td (- alert history) Tj ET
+BT /F1 12 Tf 64 776 Td (- running processes) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 758 Td (- registered applications) Tj ET
+BT /F1 12 Tf 64 758 Td (- users) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 740 Td (- server inventory) Tj ET
+BT /F1 12 Tf 64 740 Td (- package state) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 722 Td (- application metrics history) Tj ET
+BT /F1 12 Tf 64 722 Td (- application discovery) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 64 704 Td (- log streaming) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 64 686 Td (- runtime process inspection) Tj ET
 0.10 0.18 0.30 rg
-BT /F2 22 Tf 48 686 Td (Security Notes) Tj ET
+BT /F2 16 Tf 48 650 Td (Historical data) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 647.6 Td (- IRANet itself is read-only) Tj ET
+BT /F1 12 Tf 48 620.8 Td (Historical data is shared through PostgreSQL.) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 629.6 Td (- the IRANet UI does not execute commands on servers) Tj ET
+BT /F1 12 Tf 48 590.8 Td (Examples:) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 611.6 Td (- if you install remotely from your own panel, SSH execution belongs to your) Tj ET
+BT /F1 12 Tf 64 560.8 Td (- stored metrics) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 593.6 Td (own backend, not to IRANet frontend) Tj ET
+BT /F1 12 Tf 64 542.8 Td (- alert history) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 575.6 Td (- deploy behind a reverse proxy or inside trusted networks) Tj ET
+BT /F1 12 Tf 64 524.8 Td (- registered applications) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 557.6 Td (- secure PostgreSQL access properly) Tj ET
+BT /F1 12 Tf 64 506.8 Td (- server inventory) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 64 488.8 Td (- application metrics history) Tj ET
 0.10 0.18 0.30 rg
-BT /F2 22 Tf 48 521.6 Td (Current Terminology Note) Tj ET
+BT /F2 22 Tf 48 452.8 Td (Security Notes) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 483.2 Td (Some internal names still use agent_base_url for historical reasons.) Tj ET
+BT /F1 12 Tf 64 414.4 Td (- IRANet itself is read-only) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 453.2 Td (In the current architecture, that field should be understood as:) Tj ET
+BT /F1 12 Tf 64 396.4 Td (- the IRANet UI does not execute commands on servers) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 64 423.2 Td (- the public backend URL of that server) Tj ET
+BT /F1 12 Tf 64 378.4 Td (- if you install remotely from your own panel, SSH execution belongs to your) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 64 360.4 Td (own backend, not to IRANet frontend) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 64 342.4 Td (- deploy behind a reverse proxy or inside trusted networks) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 64 324.40002 Td (- secure PostgreSQL access properly) Tj ET
 0.10 0.18 0.30 rg
-BT /F2 22 Tf 48 387.2 Td (License) Tj ET
+BT /F2 22 Tf 48 288.40002 Td (Current Terminology Note) Tj ET
 0.20 0.23 0.28 rg
-BT /F1 12 Tf 48 348.80002 Td (MIT) Tj ET
+BT /F1 12 Tf 48 250 Td (Some internal names still use agent_base_url for historical reasons.) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 48 220 Td (In the current architecture, that field should be understood as:) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 64 190 Td (- the public backend URL of that server) Tj ET
+0.10 0.18 0.30 rg
+BT /F2 22 Tf 48 154 Td (License) Tj ET
+0.20 0.23 0.28 rg
+BT /F1 12 Tf 48 115.599976 Td (MIT) Tj ET
 endstream
 endobj
 25 0 obj
@@ -777,23 +809,23 @@ xref
 0000008400 00000 n 
 0000010679 00000 n 
 0000010830 00000 n 
-0000013403 00000 n 
-0000013554 00000 n 
-0000016313 00000 n 
-0000016464 00000 n 
-0000019261 00000 n 
-0000019412 00000 n 
-0000022398 00000 n 
-0000022549 00000 n 
-0000025756 00000 n 
-0000025907 00000 n 
-0000027803 00000 n 
-0000027954 00000 n 
-0000029566 00000 n 
-0000029637 00000 n 
-0000029713 00000 n 
+0000013454 00000 n 
+0000013605 00000 n 
+0000016416 00000 n 
+0000016567 00000 n 
+0000019364 00000 n 
+0000019515 00000 n 
+0000022689 00000 n 
+0000022840 00000 n 
+0000025860 00000 n 
+0000026011 00000 n 
+0000027947 00000 n 
+0000028098 00000 n 
+0000030420 00000 n 
+0000030491 00000 n 
+0000030567 00000 n 
 trailer
 << /Size 28 /Root 1 0 R >>
 startxref
-29782
+30636
 %%EOF

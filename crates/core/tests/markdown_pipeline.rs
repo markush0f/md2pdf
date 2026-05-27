@@ -139,6 +139,39 @@ fn wraps_paragraphs_to_the_usable_width() {
 }
 
 #[test]
+fn wraps_long_code_lines_to_the_usable_width() {
+    let style = PdfStyle::from_toml(
+        r#"
+        [page]
+        size = "A4"
+        margin = 250
+
+        [code_block]
+        font_size = 10
+        line_height = 13
+        padding = 10
+        margin_top = 8
+        margin_bottom = 12
+        "#,
+    );
+    let ast = MarkdownEngine::new()
+        .read(
+            r#"```bash
+curl "http://iranet-api:8000/servers/server-01/install-command?database_dsn=postgresql%2Basyncpg%3A%2F%2Firanet%3Apass%40db.example.com%3A5432%2Firanet&backend_base_url=http%3A%2F%2F10.0.0.21%3A8000&server_name=Production%2001&environment=production&capabilities=system,processes,services,logs,packages,users,metrics"
+```"#,
+        )
+        .unwrap()
+        .ast;
+    let layout = LayoutEngine::with_style(style).layout(&ast);
+    let LayoutElement::Code { content, .. } = &layout.pages[0].elements[0] else {
+        panic!("expected code block");
+    };
+
+    assert!(content.lines().count() > 1);
+    assert!(content.lines().all(|line| line.chars().count() <= 14));
+}
+
+#[test]
 fn paginates_long_documents() {
     let markdown = (1..=40)
         .map(|index| format!("Paragraph {index}"))
