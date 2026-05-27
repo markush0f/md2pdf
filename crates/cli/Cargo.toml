@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "md2pdf"
+name = "m2p"
 path = "src/main.rs"
 
 [dependencies]
