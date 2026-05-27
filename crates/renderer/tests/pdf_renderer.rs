@@ -1,4 +1,4 @@
-use markdown_to_pdf_core::MarkdownEngine;
+use markdown_to_pdf_core::{MarkdownEngine, PdfStyle};
 use markdown_to_pdf_renderer::PdfRenderer;
 
 #[test]
@@ -14,8 +14,9 @@ fn renders_layout_document_to_pdf_bytes() {
     assert!(output.contains("/BaseFont /Helvetica"));
     assert!(output.contains("/BaseFont /Helvetica-Bold"));
     assert!(output.contains("/BaseFont /Courier"));
+    assert!(output.contains("1 1 1 rg\n0 0 595 842 re f"));
     assert!(output.contains("0.10 0.18 0.30 rg"));
-    assert!(output.contains("BT /F2 28 Tf 56 778 Td (Title) Tj ET"));
+    assert!(output.contains("BT /F2 30 Tf 48 794 Td (Title) Tj ET"));
     assert!(output.contains("xref"));
     assert!(output.contains("trailer"));
     assert!(output.contains("startxref"));
@@ -35,5 +36,30 @@ fn renders_multiple_pdf_pages() {
     assert!(layout.pages.len() > 1);
     assert!(output.contains("/Count 2"));
     assert_eq!(output.matches("/Type /Page /Parent").count(), 2);
-    assert!(output.contains("BT /F1 12 Tf 56 778 Td (Paragraph 26) Tj ET"));
+    assert!(output.contains("BT /F1 12 Tf 48 794 Td (Paragraph 25) Tj ET"));
+}
+
+#[test]
+fn renders_with_structural_values_from_toml() {
+    let style = PdfStyle::from_toml(
+        r#"
+        [page]
+        size = "A4"
+        margin = 72
+
+        [code_block]
+        font_size = 9
+        line_height = 11
+        padding = 16
+        margin_top = 8
+        margin_bottom = 14
+        "#,
+    );
+    let layout = markdown_to_pdf_core::LayoutEngine::with_style(style.clone())
+        .layout(&MarkdownEngine::new().read("```bash\nls\n```").unwrap().ast);
+    let pdf = PdfRenderer::with_style(style).render(&layout);
+    let output = String::from_utf8(pdf).unwrap();
+
+    assert!(output.contains("72 727 451 43 re f"));
+    assert!(output.contains("BT /F3 9 Tf 88 745 Td (ls) Tj ET"));
 }

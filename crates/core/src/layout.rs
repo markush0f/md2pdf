@@ -1,11 +1,4 @@
-use crate::{MarkdownAst, MarkdownBlock};
-
-const PAGE_MARGIN_X: f32 = 56.0;
-const PAGE_MARGIN_TOP: f32 = 64.0;
-const PAGE_HEIGHT: f32 = 842.0;
-const PAGE_MARGIN_BOTTOM: f32 = 64.0;
-const CONTENT_BOTTOM: f32 = PAGE_HEIGHT - PAGE_MARGIN_BOTTOM;
-const CODE_LINE_HEIGHT: f32 = 13.0;
+use crate::{MarkdownAst, MarkdownBlock, PdfStyle};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct LayoutDocument {
@@ -33,30 +26,45 @@ pub enum LayoutElement {
     },
 }
 
-#[derive(Debug, Default, Clone, Copy)]
-pub struct LayoutEngine;
+#[derive(Debug, Clone)]
+pub struct LayoutEngine {
+    style: PdfStyle,
+}
 
 impl LayoutEngine {
     pub fn new() -> Self {
-        Self
+        Self {
+            style: PdfStyle::default(),
+        }
+    }
+
+    pub fn with_style(style: PdfStyle) -> Self {
+        Self { style }
     }
 
     pub fn layout(&self, ast: &MarkdownAst) -> LayoutDocument {
         let mut pages = Vec::new();
         let mut elements = Vec::new();
-        let mut y = PAGE_MARGIN_TOP;
+        let mut y = self.style.page.margin;
+        let content_bottom = self.style.page.height - self.style.page.margin;
 
         for block in &ast.blocks {
-            if !elements.is_empty() && y + block_height(block) > CONTENT_BOTTOM {
+            let mut top_spacing = block_top_spacing(block, !elements.is_empty(), &self.style);
+
+            if !elements.is_empty()
+                && y + top_spacing + block_height(block, &self.style) > content_bottom
+            {
                 pages.push(LayoutPage {
                     number: pages.len() + 1,
                     elements,
                 });
                 elements = Vec::new();
-                y = PAGE_MARGIN_TOP;
+                y = self.style.page.margin;
+                top_spacing = 0.0;
             }
 
-            elements.extend(layout_block(block, &mut y));
+            y += top_spacing;
+            elements.extend(layout_block(block, &mut y, &self.style));
         }
 
         pages.push(LayoutPage {
@@ -68,69 +76,208 @@ impl LayoutEngine {
     }
 }
 
-fn block_height(block: &MarkdownBlock) -> f32 {
-    match block {
-        MarkdownBlock::Heading { level, .. } => heading_font_size(*level) + 16.0,
-        MarkdownBlock::Paragraph(_) => 28.0,
-        MarkdownBlock::CodeBlock { code, .. } => {
-            code.lines().count().max(1) as f32 * CODE_LINE_HEIGHT + 24.0
-        }
-        MarkdownBlock::List(items) => items.len() as f32 * 20.0,
+impl Default for LayoutEngine {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
-fn heading_font_size(level: u8) -> f32 {
-    match level {
-        1 => 28.0,
-        2 => 21.0,
-        _ => 16.0,
+fn block_top_spacing(block: &MarkdownBlock, has_previous_element: bool, style: &PdfStyle) -> f32 {
+    match block {
+        MarkdownBlock::Heading { .. } if has_previous_element => style.heading.margin_top,
+        MarkdownBlock::CodeBlock { .. } if has_previous_element => style.code_block.margin_top,
+        _ => 0.0,
     }
 }
 
-fn layout_block(block: &MarkdownBlock, y: &mut f32) -> Vec<LayoutElement> {
+fn block_height(block: &MarkdownBlock, style: &PdfStyle) -> f32 {
     match block {
-        MarkdownBlock::Heading { level, text } => {
-            let font_size = heading_font_size(*level);
-            let element = LayoutElement::Text {
-                x: PAGE_MARGIN_X,
-                y: *y,
-                font_size,
-                content: text.clone(),
-            };
-            *y += font_size + 16.0;
-            vec![element]
+        MarkdownBlock::Heading { level, .. } => {
+            let heading = heading_style(*level, style);
+            wrapped_line_count(block_text(block), heading.font_size, usable_width(style)) as f32
+                * text_line_height(heading.font_size)
+                + heading.margin_bottom
         }
         MarkdownBlock::Paragraph(text) => {
-            let element = LayoutElement::Text {
-                x: PAGE_MARGIN_X,
-                y: *y,
-                font_size: 12.0,
-                content: text.clone(),
-            };
-            *y += 28.0;
-            vec![element]
+            wrapped_line_count(text, style.body.font_size, usable_width(style)) as f32
+                * body_line_height(style)
+                + style.body.margin_bottom
+        }
+        MarkdownBlock::CodeBlock { code, .. } => {
+            code.lines().count().max(1) as f32 * style.code_block.line_height
+                + style.code_block.padding * 2.0
+                + style.code_block.margin_bottom
+        }
+        MarkdownBlock::List(items) => {
+            items
+                .iter()
+                .map(|item| {
+                    wrapped_line_count(
+                        &format!("- {item}"),
+                        style.body.font_size,
+                        usable_width(style) - 16.0,
+                    ) as f32
+                        * body_line_height(style)
+                })
+                .sum::<f32>()
+                + style.body.margin_bottom
+        }
+    }
+}
+
+fn heading_style(level: u8, style: &PdfStyle) -> &crate::HeadingLevelStyle {
+    match level {
+        1 => &style.heading.h1,
+        2 => &style.heading.h2,
+        _ => &style.heading.h3,
+    }
+}
+
+fn body_line_height(style: &PdfStyle) -> f32 {
+    style.body.font_size * style.body.line_height
+}
+
+fn text_line_height(font_size: f32) -> f32 {
+    font_size * 1.2
+}
+
+fn usable_width(style: &PdfStyle) -> f32 {
+    style.page.width - style.page.margin * 2.0
+}
+
+fn block_text(block: &MarkdownBlock) -> &str {
+    match block {
+        MarkdownBlock::Heading { text, .. } | MarkdownBlock::Paragraph(text) => text,
+        MarkdownBlock::CodeBlock { code, .. } => code,
+        MarkdownBlock::List(_) => "",
+    }
+}
+
+fn wrapped_line_count(text: &str, font_size: f32, max_width: f32) -> usize {
+    wrap_text(text, font_size, max_width).len()
+}
+
+fn wrap_text(text: &str, font_size: f32, max_width: f32) -> Vec<String> {
+    let max_chars = (max_width / average_char_width(font_size)).floor().max(1.0) as usize;
+    let mut lines = Vec::new();
+    let mut current = String::new();
+
+    for word in text.split_whitespace() {
+        if current.is_empty() {
+            push_wrapped_word(&mut lines, &mut current, word, max_chars);
+        } else if current.len() + 1 + word.len() <= max_chars {
+            current.push(' ');
+            current.push_str(word);
+        } else {
+            lines.push(std::mem::take(&mut current));
+            push_wrapped_word(&mut lines, &mut current, word, max_chars);
+        }
+    }
+
+    if !current.is_empty() {
+        lines.push(current);
+    }
+
+    if lines.is_empty() {
+        lines.push(String::new());
+    }
+
+    lines
+}
+
+fn push_wrapped_word(lines: &mut Vec<String>, current: &mut String, word: &str, max_chars: usize) {
+    if word.len() <= max_chars {
+        current.push_str(word);
+        return;
+    }
+
+    let mut chunk = String::new();
+    for character in word.chars() {
+        chunk.push(character);
+        if chunk.len() >= max_chars {
+            lines.push(std::mem::take(&mut chunk));
+        }
+    }
+    current.push_str(&chunk);
+}
+
+fn average_char_width(font_size: f32) -> f32 {
+    font_size * 0.52
+}
+
+fn layout_block(block: &MarkdownBlock, y: &mut f32, style: &PdfStyle) -> Vec<LayoutElement> {
+    match block {
+        MarkdownBlock::Heading { level, text } => {
+            let heading = heading_style(*level, style);
+            let elements = layout_wrapped_text(
+                text,
+                style.page.margin,
+                y,
+                heading.font_size,
+                text_line_height(heading.font_size),
+                usable_width(style),
+            );
+            *y += heading.margin_bottom;
+            elements
+        }
+        MarkdownBlock::Paragraph(text) => {
+            let elements = layout_wrapped_text(
+                text,
+                style.page.margin,
+                y,
+                style.body.font_size,
+                body_line_height(style),
+                usable_width(style),
+            );
+            *y += style.body.margin_bottom;
+            elements
         }
         MarkdownBlock::CodeBlock { code, .. } => {
             let element = LayoutElement::Code {
-                x: PAGE_MARGIN_X,
+                x: style.page.margin,
                 y: *y,
                 content: code.clone(),
             };
-            *y += code.lines().count().max(1) as f32 * CODE_LINE_HEIGHT + 24.0;
+            *y += code.lines().count().max(1) as f32 * style.code_block.line_height
+                + style.code_block.padding * 2.0
+                + style.code_block.margin_bottom;
             vec![element]
         }
         MarkdownBlock::List(items) => items
             .iter()
-            .map(|item| {
-                let element = LayoutElement::Text {
-                    x: PAGE_MARGIN_X + 16.0,
-                    y: *y,
-                    font_size: 12.0,
-                    content: format!("- {item}"),
-                };
-                *y += 20.0;
-                element
+            .flat_map(|item| {
+                layout_wrapped_text(
+                    &format!("- {item}"),
+                    style.page.margin + 16.0,
+                    y,
+                    style.body.font_size,
+                    body_line_height(style),
+                    usable_width(style) - 16.0,
+                )
             })
             .collect(),
     }
+}
+
+fn layout_wrapped_text(
+    text: &str,
+    x: f32,
+    y: &mut f32,
+    font_size: f32,
+    line_height: f32,
+    max_width: f32,
+) -> Vec<LayoutElement> {
+    wrap_text(text, font_size, max_width)
+        .into_iter()
+        .map(|content| {
+            let element = LayoutElement::Text {
+                x,
+                y: *y,
+                font_size,
+                content,
+            };
+            *y += line_height;
+            element
+        })
+        .collect()
 }

@@ -1,15 +1,19 @@
-use markdown_to_pdf_core::{LayoutDocument, LayoutElement};
+use markdown_to_pdf_core::{LayoutDocument, LayoutElement, PdfStyle};
 
-const PAGE_WIDTH: f32 = 595.0;
-const PAGE_HEIGHT: f32 = 842.0;
-const CODE_LINE_HEIGHT: f32 = 13.0;
-
-#[derive(Debug, Default, Clone, Copy)]
-pub struct PdfRenderer;
+#[derive(Debug, Clone)]
+pub struct PdfRenderer {
+    style: PdfStyle,
+}
 
 impl PdfRenderer {
     pub fn new() -> Self {
-        Self
+        Self {
+            style: PdfStyle::default(),
+        }
+    }
+
+    pub fn with_style(style: PdfStyle) -> Self {
+        Self { style }
     }
 
     pub fn render(&self, document: &LayoutDocument) -> Vec<u8> {
@@ -31,8 +35,10 @@ impl PdfRenderer {
         for index in 0..page_count {
             let page_id = 3 + index * 2;
             let content_id = page_id + 1;
+            let page_width = self.style.page.width;
+            let page_height = self.style.page.height;
             objects.push(format!(
-                "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {PAGE_WIDTH} {PAGE_HEIGHT}] /Resources << /Font << /F1 {font_id} 0 R /F2 {} 0 R /F3 {} 0 R >> >> /Contents {content_id} 0 R >>",
+                "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {page_width} {page_height}] /Resources << /Font << /F1 {font_id} 0 R /F2 {} 0 R /F3 {} 0 R >> >> /Contents {content_id} 0 R >>",
                 font_id + 1,
                 font_id + 2
             ));
@@ -40,7 +46,7 @@ impl PdfRenderer {
             let content = document
                 .pages
                 .get(index)
-                .map(render_page_content)
+                .map(|page| render_page_content(page, &self.style))
                 .unwrap_or_default();
             objects.push(format!(
                 "<< /Length {} >>\nstream\n{}endstream",
@@ -57,8 +63,15 @@ impl PdfRenderer {
     }
 }
 
-fn render_page_content(page: &markdown_to_pdf_core::LayoutPage) -> String {
+impl Default for PdfRenderer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+fn render_page_content(page: &markdown_to_pdf_core::LayoutPage, style: &PdfStyle) -> String {
     let mut content = String::new();
+    push_page_background(&mut content, style);
 
     for element in &page.elements {
         match element {
@@ -69,6 +82,7 @@ fn render_page_content(page: &markdown_to_pdf_core::LayoutPage) -> String {
                 content: text,
             } => push_text(
                 &mut content,
+                style,
                 *x,
                 *y,
                 *font_size,
@@ -80,13 +94,16 @@ fn render_page_content(page: &markdown_to_pdf_core::LayoutPage) -> String {
                 y,
                 content: code,
             } => {
-                push_code_background(&mut content, *x, *y, code);
+                push_code_background(&mut content, style, *x, *y, code);
                 for (line_index, line) in code.lines().enumerate() {
                     push_text(
                         &mut content,
-                        *x + 10.0,
-                        *y + 15.0 + line_index as f32 * CODE_LINE_HEIGHT,
-                        10.0,
+                        style,
+                        *x + style.code_block.padding,
+                        *y + style.code_block.padding
+                            + style.code_block.font_size
+                            + line_index as f32 * style.code_block.line_height,
+                        style.code_block.font_size,
                         "F3",
                         line,
                     );
@@ -98,6 +115,12 @@ fn render_page_content(page: &markdown_to_pdf_core::LayoutPage) -> String {
     content
 }
 
+fn push_page_background(content: &mut String, style: &PdfStyle) {
+    let page_width = style.page.width;
+    let page_height = style.page.height;
+    content.push_str(&format!("1 1 1 rg\n0 0 {page_width} {page_height} re f\n"));
+}
+
 fn text_font(font_size: f32) -> &'static str {
     if font_size > 12.0 {
         "F2"
@@ -106,8 +129,16 @@ fn text_font(font_size: f32) -> &'static str {
     }
 }
 
-fn push_text(content: &mut String, x: f32, y: f32, font_size: f32, font: &str, text: &str) {
-    let pdf_y = PAGE_HEIGHT - y;
+fn push_text(
+    content: &mut String,
+    style: &PdfStyle,
+    x: f32,
+    y: f32,
+    font_size: f32,
+    font: &str,
+    text: &str,
+) {
+    let pdf_y = style.page.height - y;
     let color = if font == "F2" {
         "0.10 0.18 0.30 rg"
     } else if font == "F3" {
@@ -122,13 +153,14 @@ fn push_text(content: &mut String, x: f32, y: f32, font_size: f32, font: &str, t
     ));
 }
 
-fn push_code_background(content: &mut String, x: f32, y: f32, code: &str) {
+fn push_code_background(content: &mut String, style: &PdfStyle, x: f32, y: f32, code: &str) {
     let line_count = code.lines().count().max(1) as f32;
-    let height = line_count * CODE_LINE_HEIGHT + 18.0;
-    let pdf_y = PAGE_HEIGHT - y - height + 4.0;
+    let height = line_count * style.code_block.line_height + style.code_block.padding * 2.0;
+    let pdf_y = style.page.height - y - height;
+    let usable_width = style.page.width - style.page.margin * 2.0;
 
     content.push_str(&format!(
-        "0.95 0.96 0.98 rg\n{x} {pdf_y} 483 {height} re f\n0.78 0.82 0.88 RG\n{x} {pdf_y} 483 {height} re S\n"
+        "0.95 0.96 0.98 rg\n{x} {pdf_y} {usable_width} {height} re f\n0.78 0.82 0.88 RG\n{x} {pdf_y} {usable_width} {height} re S\n"
     ));
 }
 

@@ -1,0 +1,30 @@
+[page]
+size = "A4"
+margin = 48
+
+[body]
+font_size = 12
+line_height = 1.5
+margin_bottom = 12
+
+[heading.h1]
+font_size = 30
+margin_bottom = 16
+
+[heading.h2]
+font_size = 22
+margin_bottom = 12
+
+[heading.h3]
+font_size = 16
+margin_bottom = 10
+
+[heading]
+margin_top = 18
+
+[code_block]
+font_size = 10
+line_height = 13
+padding = 12
+margin_top = 8
+margin_bottom = 14
