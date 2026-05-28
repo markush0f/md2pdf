@@ -253,7 +253,7 @@ export default function MarkdownToPDF() {
                   </p>
                 </div>
                 <label
-                  className="flex items-center gap-2 px-4 py-2 border-2 cursor-pointer transition-all hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)]"
+                  className="flex items-center gap-2 px-4 py-2 border-2 cursor-pointer transition-all hover:bg-[#1A1A1A] hover:text-white"
                   style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -269,7 +269,7 @@ export default function MarkdownToPDF() {
                 </label>
                 <button
                   onClick={handleReset}
-                  className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)]"
+                  className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[#1A1A1A] hover:text-white"
                   style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -402,7 +402,7 @@ export default function MarkdownToPDF() {
             <button
               onClick={generatePdf}
               disabled={isGenerating}
-              className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[#1A1A1A] hover:text-white disabled:opacity-50"
               style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -413,7 +413,7 @@ export default function MarkdownToPDF() {
             <a
               href={pdfUrl!}
               download={file?.name.replace('.md', '.pdf') ?? "document.pdf"}
-              className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)]"
+              className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[#1A1A1A] hover:text-white"
               style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
