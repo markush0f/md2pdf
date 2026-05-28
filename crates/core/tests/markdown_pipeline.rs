@@ -59,7 +59,7 @@ fn keeps_heading_and_code_block_separated() {
         layout.pages[0].elements[1],
             LayoutElement::Code {
                 x: 48.0,
-                y: 85.2,
+                y: 79.2,
                 content: "cd docker\ncp .env.db.example .env.db\ndocker compose --env-file .env.db -f compose.db.yml up -d\n".to_string(),
             }
     );
@@ -89,7 +89,7 @@ fn headings_have_more_space_before_than_after() {
             },
             LayoutElement::Text {
                 x: 48.0,
-                y: 134.4,
+                y: 128.4,
                 font_size: 12.0,
                 content: "Overview body".to_string(),
             },

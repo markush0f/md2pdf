@@ -9,15 +9,15 @@ margin_bottom = 12
 
 [heading.h1]
 font_size = 30
-margin_bottom = 16
+margin_bottom = 8
 
 [heading.h2]
 font_size = 22
-margin_bottom = 12
+margin_bottom = 6
 
 [heading.h3]
 font_size = 16
-margin_bottom = 10
+margin_bottom = 4
 
 [heading]
 margin_top = 18
