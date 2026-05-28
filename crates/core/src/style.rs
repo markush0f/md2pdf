@@ -123,26 +123,26 @@ impl PdfStyle {
                 margin_bottom: 12.0,
             },
             heading: HeadingStyle {
-                margin_top: 18.0,
+                margin_top: 28.0,
                 h1: HeadingLevelStyle {
                     font_size: 30.0,
-                    margin_bottom: 8.0,
+                    margin_bottom: 2.0,
                 },
                 h2: HeadingLevelStyle {
                     font_size: 22.0,
-                    margin_bottom: 6.0,
+                    margin_bottom: 2.0,
                 },
                 h3: HeadingLevelStyle {
                     font_size: 16.0,
-                    margin_bottom: 4.0,
+                    margin_bottom: 2.0,
                 },
             },
             code_block: CodeBlockStyle {
                 font_size: 10.0,
                 line_height: 13.0,
                 padding: 12.0,
-                margin_top: 8.0,
-                margin_bottom: 14.0,
+                margin_top: 2.0,
+                margin_bottom: 28.0,
             },
         }
     }
