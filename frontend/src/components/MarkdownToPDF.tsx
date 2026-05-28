@@ -133,15 +133,15 @@ export default function MarkdownToPDF() {
     <div className="h-screen overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       <div className="grid grid-cols-[minmax(0,1fr)_4px_minmax(0,1fr)] h-full overflow-hidden">
         <div
-          className="min-w-0 min-h-0 p-12 flex flex-col overflow-hidden transition-colors duration-300"
+          className="min-w-0 min-h-0 p-6 flex flex-col overflow-hidden transition-colors duration-300"
           style={{ backgroundColor: 'var(--bg-primary)' }}
         >
-          <header className="mb-12 shrink-0">
-            <div className="h-1 bg-[#E85D04] mb-8" />
+          <header className="mb-6 shrink-0">
+            <div className="h-1 bg-[#E85D04] mb-4" />
             <div className="flex items-start justify-between">
               <div>
                 <h1
-                  className="font-serif text-4xl font-bold tracking-tight"
+                  className="font-serif text-3xl font-bold tracking-tight"
                   style={{ color: 'var(--text-primary)' }}
                 >
                   MARKDOWN
@@ -220,93 +220,93 @@ export default function MarkdownToPDF() {
           </header>
 
           <div className="min-w-0 min-h-0 flex-1 flex flex-col overflow-hidden">
-              <div className="flex items-center gap-4 mb-6 shrink-0">
-                <div
-                  className="w-10 h-10 flex items-center justify-center"
-                  style={{ backgroundColor: 'var(--text-primary)' }}
-                >
-                  <svg
-                    className="w-5 h-5"
-                    style={{ color: darkMode ? '#1A1A1A' : '#ffffff' }}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    value={file?.name || 'untitled.md'}
-                    onChange={(e) => setFile((prev) => prev ? { ...prev, name: e.target.value } : { name: e.target.value, content })}
-                    className="font-mono text-base font-medium bg-transparent outline-none"
-                    style={{ color: 'var(--text-primary)' }}
-                  />
-                  <p style={{ color: 'var(--text-secondary)' }}>
-                    {content.split("\n").length} lines
-                  </p>
-                </div>
-                <label
-                  className="flex items-center gap-2 px-4 py-2 border-2 cursor-pointer transition-all hover:bg-[#1A1A1A] hover:text-white"
-                  style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                  </svg>
-                  <span className="font-mono text-sm">Load</span>
-                  <input
-                    type="file"
-                    accept=".md"
-                    onChange={handleInputChange}
-                    className="hidden"
-                  />
-                </label>
-                <button
-                  onClick={handleReset}
-                  className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[#1A1A1A] hover:text-white"
-                  style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  <span className="font-mono text-sm">Reset</span>
-                </button>
-              </div>
+            <div className="flex items-center gap-4 mb-6 shrink-0">
               <div
-                className="min-w-0 min-h-0 flex-1 border-[3px] overflow-hidden transition-colors duration-300"
-                style={{
-                  borderColor: 'var(--border-color)',
-                  backgroundColor: 'var(--bg-tertiary)',
-                  boxShadow: darkMode ? '6px 6px 0 0 #ffffff' : '6px 6px 0 0 #1A1A1A'
-                }}
+                className="w-10 h-10 flex items-center justify-center"
+                style={{ backgroundColor: 'var(--text-primary)' }}
               >
-                <textarea
-                  value={content}
-                  onChange={(e) => {
-                    setContent(e.target.value);
-                    if (file) {
-                      setFile((prev) => prev ? { ...prev, content: e.target.value } : null);
-                    }
-                  }}
-                  className="w-full h-full p-8 resize-none outline-none font-mono text-sm leading-loose bg-transparent"
-                  style={{
-                    color: 'var(--text-primary)',
-                    overflowWrap: 'anywhere',
-                    wordBreak: 'break-all'
-                  }}
-                  spellCheck={false}
-                />
+                <svg
+                  className="w-5 h-5"
+                  style={{ color: darkMode ? '#1A1A1A' : '#ffffff' }}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
               </div>
+              <div className="flex-1">
+                <input
+                  type="text"
+                  value={file?.name || 'untitled.md'}
+                  onChange={(e) => setFile((prev) => prev ? { ...prev, name: e.target.value } : { name: e.target.value, content })}
+                  className="font-mono text-base font-medium bg-transparent outline-none"
+                  style={{ color: 'var(--text-primary)' }}
+                />
+                <p style={{ color: 'var(--text-secondary)' }}>
+                  {content.split("\n").length} lines
+                </p>
+              </div>
+              <label
+                className="flex items-center gap-2 px-4 py-2 border-2 cursor-pointer transition-all hover:bg-[#1A1A1A] hover:text-white"
+                style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                <span className="font-mono text-sm">Load</span>
+                <input
+                  type="file"
+                  accept=".md"
+                  onChange={handleInputChange}
+                  className="hidden"
+                />
+              </label>
+              <button
+                onClick={handleReset}
+                className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[#1A1A1A] hover:text-white"
+                style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span className="font-mono text-sm">Reset</span>
+              </button>
             </div>
+            <div
+              className="min-w-0 min-h-0 flex-1 border-[3px] overflow-hidden transition-colors duration-300"
+              style={{
+                borderColor: 'var(--border-color)',
+                backgroundColor: 'var(--bg-tertiary)',
+                boxShadow: darkMode ? '6px 6px 0 0 #ffffff' : '6px 6px 0 0 #1A1A1A'
+              }}
+            >
+              <textarea
+                value={content}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                  if (file) {
+                    setFile((prev) => prev ? { ...prev, content: e.target.value } : null);
+                  }
+                }}
+                className="w-full h-full p-8 resize-none outline-none font-mono text-sm leading-loose bg-transparent"
+                style={{
+                  color: 'var(--text-primary)',
+                  overflowWrap: 'anywhere',
+                  wordBreak: 'break-all'
+                }}
+                spellCheck={false}
+              />
+            </div>
+          </div>
 
           <footer
-            className="pt-8 flex items-center justify-between shrink-0"
+            className="pt-4 flex items-center justify-between shrink-0"
             style={{ borderTopColor: 'var(--border-muted)' }}
           >
             <span
@@ -327,15 +327,15 @@ export default function MarkdownToPDF() {
         />
 
         <div
-          className="min-w-0 min-h-0 p-12 flex flex-col overflow-hidden transition-colors duration-300"
+          className="min-w-0 min-h-0 p-6 flex flex-col overflow-hidden transition-colors duration-300"
           style={{ backgroundColor: 'var(--bg-primary)' }}
         >
-          <header className="mb-12 shrink-0">
-            <div className="h-1 bg-[#E85D04] mb-8" />
+          <header className="mb-6 shrink-0">
+            <div className="h-1 bg-[#E85D04] mb-4" />
             <div className="flex items-start justify-between">
               <div>
                 <h1
-                  className="font-serif text-4xl font-bold tracking-tight"
+                  className="font-serif text-3xl font-bold tracking-tight"
                   style={{ color: 'var(--text-primary)' }}
                 >
                   PDF
@@ -344,27 +344,6 @@ export default function MarkdownToPDF() {
                   Preview
                 </p>
               </div>
-              {/* {pdfUrl ? (
-                <span
-                  className="px-3 py-1 text-xs font-mono"
-                  style={{
-                    backgroundColor: '#16a34a',
-                    color: '#ffffff'
-                  }}
-                >
-                  READY
-                </span>
-              ) : (
-                <span
-                  className="px-3 py-1 text-xs font-mono"
-                  style={{
-                    backgroundColor: 'var(--text-primary)',
-                    color: darkMode ? '#1A1A1A' : '#ffffff'
-                  }}
-                >
-                  {isGenerating ? "GENERATING..." : "PRESS GENERATE"}
-                </span>
-              )} */}
             </div>
           </header>
 
@@ -423,7 +402,7 @@ export default function MarkdownToPDF() {
             </a>
           </div>
 
-            <div className="min-w-0 min-h-0 flex-1 overflow-auto">
+          <div className="min-w-0 min-h-0 flex-1 overflow-auto">
             {!content.trim() ? (
               <div className="h-full flex items-center justify-center">
                 <div className="text-center">
@@ -437,7 +416,7 @@ export default function MarkdownToPDF() {
                     <div className="absolute inset-0 opacity-50">
                       <div className="absolute top-4 left-4 right-4 h-px" style={{ backgroundColor: 'var(--border-muted)' }} />
                       <div className="absolute top-8 left-6 right-6 h-px" style={{ backgroundColor: 'var(--border-muted)' }} />
-                      <div className="absolute top-12 left-8 right-8 h-px" style={{ backgroundColor: 'var(--border-muted)' }} />
+                      <div className="absolute top-6 left-8 right-8 h-px" style={{ backgroundColor: 'var(--border-muted)' }} />
                       <div className="absolute top-16 left-10 right-10 h-px" style={{ backgroundColor: 'var(--border-muted)' }} />
                     </div>
                     <p
@@ -490,7 +469,7 @@ export default function MarkdownToPDF() {
                     <div className="absolute inset-0 opacity-50">
                       <div className="absolute top-4 left-4 right-4 h-px" style={{ backgroundColor: 'var(--border-muted)' }} />
                       <div className="absolute top-8 left-6 right-6 h-px" style={{ backgroundColor: 'var(--border-muted)' }} />
-                      <div className="absolute top-12 left-8 right-8 h-px" style={{ backgroundColor: 'var(--border-muted)' }} />
+                      <div className="absolute top-6 left-8 right-8 h-px" style={{ backgroundColor: 'var(--border-muted)' }} />
                       <div className="absolute top-16 left-10 right-10 h-px" style={{ backgroundColor: 'var(--border-muted)' }} />
                     </div>
                     <p
@@ -506,7 +485,7 @@ export default function MarkdownToPDF() {
           </div>
 
           <footer
-            className="pt-8 flex items-center justify-between shrink-0"
+            className="pt-4 flex items-center justify-between shrink-0"
             style={{ borderTopColor: 'var(--border-muted)' }}
           >
             <span
