@@ -344,7 +344,7 @@ export default function MarkdownToPDF() {
                   Preview
                 </p>
               </div>
-              {pdfUrl ? (
+              {/* {pdfUrl ? (
                 <span
                   className="px-3 py-1 text-xs font-mono"
                   style={{
@@ -364,7 +364,7 @@ export default function MarkdownToPDF() {
                 >
                   {isGenerating ? "GENERATING..." : "PRESS GENERATE"}
                 </span>
-              )}
+              )} */}
             </div>
           </header>
 
