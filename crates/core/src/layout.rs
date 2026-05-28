@@ -19,6 +19,11 @@ pub enum LayoutElement {
         font_size: f32,
         content: String,
     },
+    Rule {
+        x: f32,
+        y: f32,
+        width: f32,
+    },
     Code {
         x: f32,
         y: f32,
@@ -48,11 +53,17 @@ impl LayoutEngine {
         let mut y = self.style.page.margin;
         let content_bottom = self.style.page.height - self.style.page.margin;
 
-        for block in &ast.blocks {
-            let mut top_spacing = block_top_spacing(block, !elements.is_empty(), &self.style);
+        for (index, block) in ast.blocks.iter().enumerate() {
+            let previous_block = index
+                .checked_sub(1)
+                .and_then(|previous| ast.blocks.get(previous));
+            let mut top_spacing =
+                block_top_spacing(block, previous_block, !elements.is_empty(), &self.style);
+            let next_block = ast.blocks.get(index + 1);
 
             if !elements.is_empty()
-                && y + top_spacing + block_height(block, &self.style) > content_bottom
+                && y + top_spacing + pagination_height(&ast.blocks, index, &self.style)
+                    > content_bottom
             {
                 pages.push(LayoutPage {
                     number: pages.len() + 1,
@@ -64,7 +75,7 @@ impl LayoutEngine {
             }
 
             y += top_spacing;
-            elements.extend(layout_block(block, &mut y, &self.style));
+            elements.extend(layout_block(block, next_block, &mut y, &self.style));
         }
 
         pages.push(LayoutPage {
@@ -82,15 +93,33 @@ impl Default for LayoutEngine {
     }
 }
 
-fn block_top_spacing(block: &MarkdownBlock, has_previous_element: bool, style: &PdfStyle) -> f32 {
+fn block_top_spacing(
+    block: &MarkdownBlock,
+    previous_block: Option<&MarkdownBlock>,
+    has_previous_element: bool,
+    style: &PdfStyle,
+) -> f32 {
     match block {
         MarkdownBlock::Heading { .. } if has_previous_element => style.heading.margin_top,
-        MarkdownBlock::CodeBlock { .. } if has_previous_element => style.code_block.margin_top,
+        MarkdownBlock::CodeBlock { .. }
+            if has_previous_element
+                && !matches!(previous_block, Some(MarkdownBlock::Paragraph(_))) =>
+        {
+            style.code_block.margin_top
+        }
         _ => 0.0,
     }
 }
 
 fn block_height(block: &MarkdownBlock, style: &PdfStyle) -> f32 {
+    block_height_with_next(block, None, style)
+}
+
+fn block_height_with_next(
+    block: &MarkdownBlock,
+    next_block: Option<&MarkdownBlock>,
+    style: &PdfStyle,
+) -> f32 {
     match block {
         MarkdownBlock::Heading { level, .. } => {
             let heading = heading_style(*level, style);
@@ -101,7 +130,7 @@ fn block_height(block: &MarkdownBlock, style: &PdfStyle) -> f32 {
         MarkdownBlock::Paragraph(text) => {
             wrapped_line_count(text, style.body.font_size, usable_width(style)) as f32
                 * body_line_height(style)
-                + style.body.margin_bottom
+                + paragraph_bottom_spacing(next_block, style)
         }
         MarkdownBlock::CodeBlock { code, .. } => {
             wrapped_code_line_count(code, style) as f32 * style.code_block.line_height
@@ -123,6 +152,38 @@ fn block_height(block: &MarkdownBlock, style: &PdfStyle) -> f32 {
                 + style.body.margin_bottom
         }
     }
+}
+
+fn paragraph_bottom_spacing(next_block: Option<&MarkdownBlock>, style: &PdfStyle) -> f32 {
+    if matches!(next_block, Some(MarkdownBlock::CodeBlock { .. })) {
+        style.code_block.margin_top
+    } else {
+        style.body.margin_bottom
+    }
+}
+
+fn pagination_height(blocks: &[MarkdownBlock], index: usize, style: &PdfStyle) -> f32 {
+    let block = &blocks[index];
+    let next_block = blocks.get(index + 1);
+    let height = block_height_with_next(block, next_block, style);
+    if !matches!(block, MarkdownBlock::Heading { .. }) {
+        return height;
+    }
+
+    let mut group_height = height;
+    let mut previous = block;
+
+    for next in &blocks[index + 1..] {
+        group_height +=
+            block_top_spacing(next, Some(previous), true, style) + block_height(next, style);
+        previous = next;
+
+        if !matches!(next, MarkdownBlock::Heading { .. }) {
+            return group_height;
+        }
+    }
+
+    group_height
 }
 
 fn heading_style(level: u8, style: &PdfStyle) -> &crate::HeadingLevelStyle {
@@ -260,18 +321,29 @@ fn code_char_width(font_size: f32) -> f32 {
     font_size * 0.62
 }
 
-fn layout_block(block: &MarkdownBlock, y: &mut f32, style: &PdfStyle) -> Vec<LayoutElement> {
+fn layout_block(
+    block: &MarkdownBlock,
+    next_block: Option<&MarkdownBlock>,
+    y: &mut f32,
+    style: &PdfStyle,
+) -> Vec<LayoutElement> {
     match block {
         MarkdownBlock::Heading { level, text } => {
             let heading = heading_style(*level, style);
-            let elements = layout_wrapped_text(
+            let line_height = text_line_height(heading.font_size);
+            let mut elements = layout_wrapped_text(
                 text,
                 style.page.margin,
                 y,
                 heading.font_size,
-                text_line_height(heading.font_size),
+                line_height,
                 usable_width(style),
             );
+            elements.push(LayoutElement::Rule {
+                x: style.page.margin,
+                y: *y - line_height + heading.font_size * 0.35,
+                width: usable_width(style),
+            });
             *y += heading.margin_bottom;
             elements
         }
@@ -284,7 +356,7 @@ fn layout_block(block: &MarkdownBlock, y: &mut f32, style: &PdfStyle) -> Vec<Lay
                 body_line_height(style),
                 usable_width(style),
             );
-            *y += style.body.margin_bottom;
+            *y += paragraph_bottom_spacing(next_block, style);
             elements
         }
         MarkdownBlock::CodeBlock { code, .. } => {

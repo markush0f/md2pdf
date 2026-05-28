@@ -61,33 +61,7 @@ export default function MarkdownToPDF() {
     };
   }, [pdfUrl]);
 
-  const handleFile = useCallback((selectedFile: File) => {
-    if (!selectedFile.name.endsWith(".md")) {
-      alert("Only markdown files are allowed");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      setContent(text);
-      setFile({
-        name: selectedFile.name,
-        content: text,
-      });
-    };
-    reader.readAsText(selectedFile);
-  }, []);
-
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const selectedFile = e.target.files?.[0];
-      if (selectedFile) handleFile(selectedFile);
-    },
-    [handleFile]
-  );
-
-  const generatePdf = useCallback(async () => {
+  const generatePdf = useCallback(async (markdown = content) => {
     if (isGenerating) return;
     setIsGenerating(true);
     setError(null);
@@ -101,7 +75,7 @@ export default function MarkdownToPDF() {
       const response = await fetch(`${API_BASE_URL}/convert`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ markdown: content }),
+        body: JSON.stringify({ markdown }),
       });
 
       if (!response.ok) {
@@ -118,6 +92,33 @@ export default function MarkdownToPDF() {
       setIsGenerating(false);
     }
   }, [content, isGenerating, pdfUrl]);
+
+  const handleFile = useCallback((selectedFile: File) => {
+    if (!selectedFile.name.endsWith(".md")) {
+      alert("Only markdown files are allowed");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      setContent(text);
+      setFile({
+        name: selectedFile.name,
+        content: text,
+      });
+      generatePdf(text);
+    };
+    reader.readAsText(selectedFile);
+  }, [generatePdf]);
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = e.target.files?.[0];
+      if (selectedFile) handleFile(selectedFile);
+    },
+    [handleFile]
+  );
 
   const handleReset = useCallback(() => {
     setContent(DEFAULT_CONTENT);

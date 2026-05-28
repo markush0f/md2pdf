@@ -89,6 +89,7 @@ fn render_page_content(page: &markdown_to_pdf_core::LayoutPage, style: &PdfStyle
                 text_font(*font_size),
                 text,
             ),
+            LayoutElement::Rule { x, y, width } => push_rule(&mut content, style, *x, *y, *width),
             LayoutElement::Code {
                 x,
                 y,
@@ -150,6 +151,15 @@ fn push_text(
     content.push_str(&format!(
         "{color}\nBT /{font} {font_size} Tf {x} {pdf_y} Td ({}) Tj ET\n",
         escape_pdf_string(text)
+    ));
+}
+
+fn push_rule(content: &mut String, style: &PdfStyle, x: f32, y: f32, width: f32) {
+    let pdf_y = style.page.height - y;
+
+    content.push_str(&format!(
+        "0.82 0.85 0.90 RG\n0.75 w\n{x} {pdf_y} m {} {pdf_y} l S\n",
+        x + width
     ));
 }
 

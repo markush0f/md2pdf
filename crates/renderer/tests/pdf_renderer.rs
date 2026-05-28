@@ -17,6 +17,7 @@ fn renders_layout_document_to_pdf_bytes() {
     assert!(output.contains("1 1 1 rg\n0 0 595 842 re f"));
     assert!(output.contains("0.10 0.18 0.30 rg"));
     assert!(output.contains("BT /F2 30 Tf 48 794 Td (Title) Tj ET"));
+    assert!(output.contains("0.82 0.85 0.90 RG\n0.75 w\n48 783.5 m 547 783.5 l S"));
     assert!(output.contains("xref"));
     assert!(output.contains("trailer"));
     assert!(output.contains("startxref"));

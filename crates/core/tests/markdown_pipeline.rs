@@ -57,11 +57,45 @@ fn keeps_heading_and_code_block_separated() {
     );
     assert_eq!(
         layout.pages[0].elements[1],
-            LayoutElement::Code {
-                x: 48.0,
-                y: 71.2,
+        LayoutElement::Rule {
+            x: 48.0,
+            y: 53.599995,
+            width: 499.0,
+        }
+    );
+    assert_eq!(
+        layout.pages[0].elements[2],
+        LayoutElement::Code {
+            x: 48.0,
+            y: 71.2,
                 content: "cd docker\ncp .env.db.example .env.db\ndocker compose --env-file .env.db -f compose.db.yml up -d\n".to_string(),
             }
+    );
+}
+
+#[test]
+fn keeps_paragraph_intro_close_to_following_code_block() {
+    let layout = MarkdownEngine::new()
+        .compile("Start the Tauri app in another terminal:\n\n```bash\nnpm run tauri dev\n```")
+        .unwrap();
+
+    assert_eq!(layout.pages.len(), 1);
+    assert_eq!(
+        layout.pages[0].elements[0],
+        LayoutElement::Text {
+            x: 48.0,
+            y: 48.0,
+            font_size: 12.0,
+            content: "Start the Tauri app in another terminal:".to_string(),
+        }
+    );
+    assert_eq!(
+        layout.pages[0].elements[1],
+        LayoutElement::Code {
+            x: 48.0,
+            y: 68.0,
+            content: "npm run tauri dev\n".to_string(),
+        }
     );
 }
 
@@ -86,6 +120,11 @@ fn headings_have_more_space_before_than_after() {
                 y: 106.0,
                 font_size: 22.0,
                 content: "Overview".to_string(),
+            },
+            LayoutElement::Rule {
+                x: 48.0,
+                y: 113.69999,
+                width: 499.0,
             },
             LayoutElement::Text {
                 x: 48.0,
@@ -194,6 +233,107 @@ fn paginates_long_documents() {
 }
 
 #[test]
+fn keeps_heading_with_following_paragraph_when_paginating() {
+    let filler = (1..=23)
+        .map(|index| format!("Paragraph {index}"))
+        .collect::<Vec<_>>()
+        .join("\n\n");
+    let markdown =
+        format!("{filler}\n\n### Important section\n\nThis paragraph belongs to the heading");
+    let layout = MarkdownEngine::new().compile(&markdown).unwrap();
+
+    assert!(layout.pages.len() > 1);
+    assert_eq!(
+        layout.pages[1].elements[0],
+        LayoutElement::Text {
+            x: 48.0,
+            y: 48.0,
+            font_size: 16.0,
+            content: "Important section".to_string(),
+        }
+    );
+    assert_eq!(
+        layout.pages[1].elements[1],
+        LayoutElement::Rule {
+            x: 48.0,
+            y: 53.599995,
+            width: 499.0,
+        }
+    );
+    assert_eq!(
+        layout.pages[1].elements[2],
+        LayoutElement::Text {
+            x: 48.0,
+            y: 69.2,
+            font_size: 12.0,
+            content: "This paragraph belongs to the heading".to_string(),
+        }
+    );
+}
+
+#[test]
+fn keeps_heading_with_subheading_and_following_content_when_paginating() {
+    let mut style = PdfStyle::default();
+    style.page.height = 260.0;
+    style.page.margin = 10.0;
+
+    let filler = (1..=4)
+        .map(|index| format!("Paragraph {index}"))
+        .collect::<Vec<_>>()
+        .join("\n\n");
+    let markdown = format!(
+        "{filler}\n\n## Getting Started\n\n### Prerequisites\n\n- Node.js\n- Rust toolchain"
+    );
+    let ast = MarkdownEngine::new().read(&markdown).unwrap().ast;
+    let layout = LayoutEngine::with_style(style).layout(&ast);
+
+    assert_eq!(layout.pages.len(), 2);
+    assert_eq!(
+        layout.pages[1].elements[0],
+        LayoutElement::Text {
+            x: 10.0,
+            y: 10.0,
+            font_size: 22.0,
+            content: "Getting Started".to_string(),
+        }
+    );
+    assert_eq!(
+        layout.pages[1].elements[1],
+        LayoutElement::Rule {
+            x: 10.0,
+            y: 17.7,
+            width: 575.0,
+        }
+    );
+    assert_eq!(
+        layout.pages[1].elements[2],
+        LayoutElement::Text {
+            x: 10.0,
+            y: 66.4,
+            font_size: 16.0,
+            content: "Prerequisites".to_string(),
+        }
+    );
+    assert_eq!(
+        layout.pages[1].elements[3],
+        LayoutElement::Rule {
+            x: 10.0,
+            y: 72.00001,
+            width: 575.0,
+        }
+    );
+    assert_eq!(
+        layout.pages[1].elements[4],
+        LayoutElement::Text {
+            x: 26.0,
+            y: 87.600006,
+            font_size: 12.0,
+            content: "- Node.js".to_string(),
+        }
+    );
+}
+
+#[test]
 fn applies_structural_values_from_toml() {
     let style = PdfStyle::from_toml(
         r#"
@@ -222,6 +362,11 @@ fn applies_structural_values_from_toml() {
                 y: 72.0,
                 font_size: 34.0,
                 content: "Title".to_string(),
+            },
+            LayoutElement::Rule {
+                x: 72.0,
+                y: 83.9,
+                width: 451.0,
             },
             LayoutElement::Text {
                 x: 72.0,
