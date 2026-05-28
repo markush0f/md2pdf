@@ -1,0 +1,24 @@
+[package]
+name = "markdown_to_pdf_api"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "m2p-api"
+path = "src/main.rs"
+
+[dependencies]
+axum = { workspace = true }
+markdown_to_pdf_core = { path = "../core" }
+markdown_to_pdf_renderer = { path = "../renderer" }
+serde = { workspace = true }
+tokio = { workspace = true }
+tower = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+utoipa = { workspace = true }
+utoipa-swagger-ui = { workspace = true }
+
+[dev-dependencies]
+http-body-util = { workspace = true }
+serde_json = { workspace = true }
