@@ -9,6 +9,7 @@ path = "src/main.rs"
 
 [dependencies]
 axum = { workspace = true }
+tower-http = { workspace = true, features = ["cors"] }
 markdown_to_pdf_core = { path = "../core" }
 markdown_to_pdf_renderer = { path = "../renderer" }
 serde = { workspace = true }
