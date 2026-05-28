@@ -5,6 +5,9 @@ interface FileData {
   content: string;
 }
 
+const API_BASE_URL =
+  import.meta.env.PUBLIC_API_BASE_URL ?? "http://127.0.0.1:3000";
+
 const DEFAULT_CONTENT = `# Getting Started
 
 Welcome to **MarkdownPDF**. Here's a quick example:
@@ -31,7 +34,9 @@ export default function MarkdownToPDF() {
     content: DEFAULT_CONTENT,
   });
   const [darkMode, setDarkMode] = useState(false);
-
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     const saved = localStorage.getItem("darkMode");
     if (saved) {
@@ -47,6 +52,14 @@ export default function MarkdownToPDF() {
       document.documentElement.classList.remove("dark");
     }
   }, [darkMode]);
+
+  useEffect(() => {
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
+  }, [pdfUrl]);
 
   const handleFile = useCallback((selectedFile: File) => {
     if (!selectedFile.name.endsWith(".md")) {
@@ -74,14 +87,56 @@ export default function MarkdownToPDF() {
     [handleFile]
   );
 
+  const generatePdf = useCallback(async () => {
+    if (isGenerating) return;
+    setIsGenerating(true);
+    setError(null);
+
+    if (pdfUrl) {
+      URL.revokeObjectURL(pdfUrl);
+      setPdfUrl(null);
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/convert`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markdown: content }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: "Unknown error" }));
+        throw new Error(err.error || `HTTP ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setPdfUrl(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate PDF");
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [content, isGenerating, pdfUrl]);
+
+  const handleReset = useCallback(() => {
+    setContent(DEFAULT_CONTENT);
+    setFile({ name: "untitled.md", content: DEFAULT_CONTENT });
+    if (pdfUrl) {
+      URL.revokeObjectURL(pdfUrl);
+      setPdfUrl(null);
+    }
+    setError(null);
+  }, [pdfUrl]);
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-      <div className="grid grid-cols-[minmax(0,1fr)_4px_minmax(0,1fr)] min-h-screen">
+    <div className="h-screen overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+      <div className="grid grid-cols-[minmax(0,1fr)_4px_minmax(0,1fr)] h-full overflow-hidden">
         <div
-          className="min-w-0 p-12 flex flex-col transition-colors duration-300"
+          className="min-w-0 min-h-0 p-12 flex flex-col overflow-hidden transition-colors duration-300"
           style={{ backgroundColor: 'var(--bg-primary)' }}
         >
-          <header className="mb-12">
+          <header className="mb-12 shrink-0">
             <div className="h-1 bg-[#E85D04] mb-8" />
             <div className="flex items-start justify-between">
               <div>
@@ -164,8 +219,8 @@ export default function MarkdownToPDF() {
             </div>
           </header>
 
-          <div className="min-w-0 flex-1 flex flex-col">
-              <div className="flex items-center gap-4 mb-6">
+          <div className="min-w-0 min-h-0 flex-1 flex flex-col overflow-hidden">
+              <div className="flex items-center gap-4 mb-6 shrink-0">
                 <div
                   className="w-10 h-10 flex items-center justify-center"
                   style={{ backgroundColor: 'var(--text-primary)' }}
@@ -213,10 +268,7 @@ export default function MarkdownToPDF() {
                   />
                 </label>
                 <button
-                  onClick={() => {
-                    setContent(DEFAULT_CONTENT);
-                    setFile({ name: "untitled.md", content: DEFAULT_CONTENT });
-                  }}
+                  onClick={handleReset}
                   className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)]"
                   style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                 >
@@ -227,7 +279,7 @@ export default function MarkdownToPDF() {
                 </button>
               </div>
               <div
-                className="min-w-0 flex-1 border-[3px] transition-colors duration-300"
+                className="min-w-0 min-h-0 flex-1 border-[3px] overflow-hidden transition-colors duration-300"
                 style={{
                   borderColor: 'var(--border-color)',
                   backgroundColor: 'var(--bg-tertiary)',
@@ -254,7 +306,7 @@ export default function MarkdownToPDF() {
             </div>
 
           <footer
-            className="mt-auto pt-8 flex items-center justify-between"
+            className="pt-8 flex items-center justify-between shrink-0"
             style={{ borderTopColor: 'var(--border-muted)' }}
           >
             <span
@@ -275,10 +327,10 @@ export default function MarkdownToPDF() {
         />
 
         <div
-          className="min-w-0 p-12 flex flex-col transition-colors duration-300"
+          className="min-w-0 min-h-0 p-12 flex flex-col overflow-hidden transition-colors duration-300"
           style={{ backgroundColor: 'var(--bg-primary)' }}
         >
-          <header className="mb-12">
+          <header className="mb-12 shrink-0">
             <div className="h-1 bg-[#E85D04] mb-8" />
             <div className="flex items-start justify-between">
               <div>
@@ -292,19 +344,86 @@ export default function MarkdownToPDF() {
                   Preview
                 </p>
               </div>
-              <span
-                className="px-3 py-1 text-xs font-mono"
-                style={{
-                  backgroundColor: 'var(--text-primary)',
-                  color: darkMode ? '#1A1A1A' : '#ffffff'
-                }}
-              >
-                MOCK
-              </span>
+              {pdfUrl ? (
+                <span
+                  className="px-3 py-1 text-xs font-mono"
+                  style={{
+                    backgroundColor: '#16a34a',
+                    color: '#ffffff'
+                  }}
+                >
+                  READY
+                </span>
+              ) : (
+                <span
+                  className="px-3 py-1 text-xs font-mono"
+                  style={{
+                    backgroundColor: 'var(--text-primary)',
+                    color: darkMode ? '#1A1A1A' : '#ffffff'
+                  }}
+                >
+                  {isGenerating ? "GENERATING..." : "PRESS GENERATE"}
+                </span>
+              )}
             </div>
           </header>
 
-            <div className="min-w-0 flex-1 overflow-auto">
+          <div className="flex items-center gap-4 mb-6 shrink-0">
+            <div
+              className="w-10 h-10 flex items-center justify-center"
+              style={{ backgroundColor: 'var(--text-primary)' }}
+            >
+              <svg
+                className="w-5 h-5"
+                style={{ color: darkMode ? '#1A1A1A' : '#ffffff' }}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <p
+                className="font-mono text-base font-medium"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                {file?.name.replace('.md', '.pdf') || 'document.pdf'}
+              </p>
+              <p style={{ color: 'var(--text-secondary)' }}>
+                {pdfUrl ? "PDF generated" : "Not generated"}
+              </p>
+            </div>
+            <button
+              onClick={generatePdf}
+              disabled={isGenerating}
+              className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] disabled:opacity-50"
+              style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span className="font-mono text-sm">Regenerate</span>
+            </button>
+            <a
+              href={pdfUrl!}
+              download={file?.name.replace('.md', '.pdf') ?? "document.pdf"}
+              className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)]"
+              style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span className="font-mono text-sm">Download</span>
+            </a>
+          </div>
+
+            <div className="min-w-0 min-h-0 flex-1 overflow-auto">
             {!content.trim() ? (
               <div className="h-full flex items-center justify-center">
                 <div className="text-center">
@@ -330,160 +449,71 @@ export default function MarkdownToPDF() {
                   </div>
                 </div>
               </div>
-            ) : (
+            ) : pdfUrl ? (
               <div
-                className="transition-colors duration-300"
+                className="h-full border-[3px] overflow-hidden transition-colors duration-300"
                 style={{
+                  borderColor: 'var(--border-color)',
                   backgroundColor: 'var(--bg-tertiary)',
-                  boxShadow: darkMode ? '16px 16px 0 0 #ffffff' : '16px 16px 0 0 #1A1A1A'
+                  boxShadow: darkMode ? '6px 6px 0 0 #ffffff' : '6px 6px 0 0 #1A1A1A'
                 }}
               >
-                <div className="bg-[#1A1A1A] px-10 py-8">
-                  <h1 className="text-4xl font-bold text-white mb-2 font-serif">
-                    The Art of Writing
-                  </h1>
-                  <p className="text-stone-400 text-sm">
-                    A Journey Through Words
-                  </p>
-                </div>
-                <div className="px-10 py-8">
-                  <h2
-                    className="text-2xl font-bold mb-4 pb-2 border-b-2"
-                    style={{ color: '#1A1A1A', borderColor: '#1A1A1A' }}
-                  >
-                    Introduction
-                  </h2>
-                  <p className="text-stone-700 leading-relaxed text-lg mb-6">
-                    Writing is a journey through the landscapes of thought.
-                    Every word choices matter, every sentence breathes.
-                  </p>
-                  <h2
-                    className="text-2xl font-bold mb-4 pb-2 border-b-2"
-                    style={{ color: '#1A1A1A', borderColor: '#1A1A1A' }}
-                  >
-                    The Process
-                  </h2>
-                  <ol className="space-y-4 mb-6">
-                    <li className="flex items-center gap-4">
-                      <span className="w-8 h-8 bg-[#E85D04] text-white flex items-center justify-center text-base font-bold">
-                        1
-                      </span>
-                      <span className="text-lg" style={{ color: '#1A1A1A' }}>
-                        <strong>Brainstorm</strong> — Gather thoughts
-                      </span>
-                    </li>
-                    <li className="flex items-center gap-4">
-                      <span className="w-8 h-8 bg-[#E85D04] text-white flex items-center justify-center text-base font-bold">
-                        2
-                      </span>
-                      <span className="text-lg" style={{ color: '#1A1A1A' }}>
-                        <strong>Outline</strong> — Structure narrative
-                      </span>
-                    </li>
-                    <li className="flex items-center gap-4">
-                      <span className="w-8 h-8 bg-[#E85D04] text-white flex items-center justify-center text-base font-bold">
-                        3
-                      </span>
-                      <span className="text-lg" style={{ color: '#1A1A1A' }}>
-                        <strong>Draft</strong> — Let words flow
-                      </span>
-                    </li>
-                    <li className="flex items-center gap-4">
-                      <span className="w-8 h-8 bg-[#E85D04] text-white flex items-center justify-center text-base font-bold">
-                        4
-                      </span>
-                      <span className="text-lg" style={{ color: '#1A1A1A' }}>
-                        <strong>Revise</strong> — Polish it shines
-                      </span>
-                    </li>
-                  </ol>
-                  <blockquote
-                    className="p-6 mb-6 border-l-4 border-[#E85D04]"
-                    style={{ backgroundColor: '#F5F0E8' }}
-                  >
-                    <p className="italic text-stone-700 text-lg">
-                      "Words are, of course, the most powerful drug used by
-                      mankind."
-                    </p>
-                    <cite className="text-sm text-stone-500 mt-3 block">
-                      — Rudyard Kipling
-                    </cite>
-                  </blockquote>
-                  <h2
-                    className="text-2xl font-bold mb-4 pb-2 border-b-2"
-                    style={{ color: '#1A1A1A', borderColor: '#1A1A1A' }}
-                  >
-                    Code Example
-                  </h2>
-                  <pre className="max-w-full min-w-0 bg-[#1A1A1A] text-[#F5F0E8] p-5 font-mono text-sm mb-6 whitespace-pre-wrap break-all"><code>{`function greet(name) {
-  return \`Hello, \${name}!\`;
-}`}</code></pre>
-                  <h2
-                    className="text-2xl font-bold mb-4 pb-2 border-b-2"
-                    style={{ color: '#1A1A1A', borderColor: '#1A1A1A' }}
-                  >
-                    Conclusion
-                  </h2>
-                  <p className="text-stone-700 leading-relaxed text-lg">
-                    Remember: <em>Writing is rewriting</em>.
-                  </p>
+                <iframe
+                  src={`${pdfUrl}#toolbar=0&navpanes=0&view=FitH`}
+                  title="PDF Preview"
+                  className="w-full h-full block"
+                  style={{ border: 'none' }}
+                />
+              </div>
+            ) : (
+              <div className="h-full flex items-center justify-center">
+                <div className="text-center">
+                  {error && (
+                    <div
+                      className="mb-6 p-4 border-2"
+                      style={{
+                        borderColor: '#dc2626',
+                        backgroundColor: darkMode ? '#1a1a1a' : '#fef2f2',
+                        color: '#dc2626'
+                      }}
+                    >
+                      <p className="font-mono text-sm">{error}</p>
+                    </div>
+                  )}
                   <div
-                    className="flex items-center justify-between pt-8 mt-8 border-t"
-                    style={{ borderColor: '#e7e5e4' }}
+                    className="w-72 h-96 border-[3px] border-dashed flex items-center justify-center mb-6 relative overflow-hidden transition-colors duration-300"
+                    style={{
+                      borderColor: 'var(--border-muted)',
+                      backgroundColor: darkMode ? '#1A1A1A' : '#f5f5f4'
+                    }}
                   >
-                    <span className="text-sm text-stone-400 font-mono">
-                      Generated by MarkdownPDF
-                    </span>
-                    <span className="text-sm text-stone-400 font-mono">
-                      Page 1 of 1
-                    </span>
+                    <div className="absolute inset-0 opacity-50">
+                      <div className="absolute top-4 left-4 right-4 h-px" style={{ backgroundColor: 'var(--border-muted)' }} />
+                      <div className="absolute top-8 left-6 right-6 h-px" style={{ backgroundColor: 'var(--border-muted)' }} />
+                      <div className="absolute top-12 left-8 right-8 h-px" style={{ backgroundColor: 'var(--border-muted)' }} />
+                      <div className="absolute top-16 left-10 right-10 h-px" style={{ backgroundColor: 'var(--border-muted)' }} />
+                    </div>
+                    <p
+                      className="font-mono text-sm relative z-10"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
+                      {isGenerating ? "Generating PDF..." : "Click Generate to preview"}
+                    </p>
                   </div>
                 </div>
               </div>
             )}
           </div>
 
-          {content.trim() && (
-            <div
-              className="mt-8 pt-8"
-              style={{ borderTopColor: 'var(--border-muted)' }}
-            >
-              <button
-                className="group w-full flex items-center justify-center gap-3 px-8 py-4 text-xl font-bold transition-all duration-300"
-                style={{
-                  backgroundColor: '#E85D04',
-                  color: '#ffffff',
-                  boxShadow: darkMode ? '4px 4px 0 0 #ffffff' : '4px 4px 0 0 #1A1A1A'
-                }}
-              >
-                <svg
-                  className="w-6 h-6"
-                  style={{ color: '#ffffff' }}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                  />
-                </svg>
-                DOWNLOAD PDF
-              </button>
-            </div>
-          )}
-
           <footer
-            className="mt-auto pt-8 flex items-center justify-between"
+            className="pt-8 flex items-center justify-between shrink-0"
             style={{ borderTopColor: 'var(--border-muted)' }}
           >
             <span
               className="text-xs font-mono"
               style={{ color: 'var(--text-secondary)' }}
             >
-              High quality output
+              {pdfUrl ? "PDF ready" : "Waiting for generation..."}
             </span>
             <span style={{ color: 'var(--text-secondary)' }}>
               A4 format
