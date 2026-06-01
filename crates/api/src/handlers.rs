@@ -43,7 +43,7 @@ pub async fn convert(Json(payload): Json<ConvertRequest>) -> Result<impl IntoRes
     );
     headers.insert(
         header::CONTENT_DISPOSITION,
-        HeaderValue::from_static("attachment; filename=\"document.pdf\""),
+        HeaderValue::from_static("inline; filename=\"document.pdf\""),
     );
 
     Ok((StatusCode::OK, headers, Body::from(pdf)))

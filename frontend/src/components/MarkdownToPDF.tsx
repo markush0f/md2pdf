@@ -1,8 +1,95 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.mjs?url";
 
 interface FileData {
   name: string;
   content: string;
+}
+
+interface PdfCanvasViewerProps {
+  pdfUrl: string;
+  darkMode: boolean;
+}
+
+function PdfCanvasViewer({ pdfUrl, darkMode }: PdfCanvasViewerProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let cancelled = false;
+    let loadingTask: { promise: Promise<any>; destroy: () => void } | null = null;
+    container.replaceChildren();
+
+    async function renderPdf() {
+      try {
+        const pdfjsLib = await import("pdfjs-dist");
+        pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+        loadingTask = pdfjsLib.getDocument({ url: pdfUrl });
+        const pdf = await loadingTask.promise;
+        if (cancelled) return;
+
+        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+          const page = await pdf.getPage(pageNumber);
+          if (cancelled || !container) return;
+
+          const baseViewport = page.getViewport({ scale: 1 });
+          const availableWidth = Math.max(container.parentElement?.clientWidth ?? container.clientWidth, 280);
+          const scale = Math.min((availableWidth - 40) / baseViewport.width, 2.4);
+          const viewport = page.getViewport({ scale });
+          const deviceScale = window.devicePixelRatio || 1;
+
+          const pageFrame = document.createElement("div");
+          pageFrame.className = "mx-auto mb-6";
+          pageFrame.style.width = `${viewport.width}px`;
+          pageFrame.style.maxWidth = "100%";
+          pageFrame.style.border = darkMode ? "2px solid #ffffff" : "2px solid #1A1A1A";
+          pageFrame.style.boxShadow = darkMode
+            ? "6px 6px 0 0 #ffffff"
+            : "6px 6px 0 0 #1A1A1A";
+
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.floor(viewport.width * deviceScale);
+          canvas.height = Math.floor(viewport.height * deviceScale);
+          canvas.style.width = `${viewport.width}px`;
+          canvas.style.height = `${viewport.height}px`;
+          canvas.style.display = "block";
+
+          pageFrame.appendChild(canvas);
+          container.appendChild(pageFrame);
+
+          const context = canvas.getContext("2d");
+          if (!context) return;
+
+          await page.render({
+            canvasContext: context,
+            viewport,
+            transform: deviceScale === 1 ? undefined : [deviceScale, 0, 0, deviceScale, 0, 0],
+          }).promise;
+        }
+      } catch (err) {
+        if (cancelled || !container) return;
+        const message = err instanceof Error ? err.message : "Failed to render PDF";
+        container.replaceChildren();
+        const errorMessage = document.createElement("p");
+        errorMessage.className = "font-mono text-sm p-8 text-center";
+        errorMessage.style.color = "#dc2626";
+        errorMessage.textContent = message;
+        container.appendChild(errorMessage);
+      }
+    }
+
+    renderPdf();
+
+    return () => {
+      cancelled = true;
+      loadingTask?.destroy();
+      container.replaceChildren();
+    };
+  }, [darkMode, pdfUrl]);
+
+  return <div ref={containerRef} className="h-full w-full overflow-y-auto px-5" />;
 }
 
 const API_BASE_URL =
@@ -61,8 +148,9 @@ export default function MarkdownToPDF() {
     };
   }, [pdfUrl]);
 
-  const generatePdf = useCallback(async (markdown = content) => {
+  const generatePdf = useCallback(async (markdown?: string) => {
     if (isGenerating) return;
+    const markdownToRender = markdown ?? content;
     setIsGenerating(true);
     setError(null);
 
@@ -75,7 +163,7 @@ export default function MarkdownToPDF() {
       const response = await fetch(`${API_BASE_URL}/convert`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ markdown }),
+        body: JSON.stringify({ markdown: markdownToRender }),
       });
 
       if (!response.ok) {
@@ -380,7 +468,7 @@ export default function MarkdownToPDF() {
               </p>
             </div>
             <button
-              onClick={generatePdf}
+              onClick={() => generatePdf()}
               disabled={isGenerating}
               className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[#1A1A1A] hover:text-white disabled:opacity-50"
               style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
@@ -390,17 +478,30 @@ export default function MarkdownToPDF() {
               </svg>
               <span className="font-mono text-sm">Regenerate</span>
             </button>
-            <a
-              href={pdfUrl!}
-              download={file?.name.replace('.md', '.pdf') ?? "document.pdf"}
-              className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[#1A1A1A] hover:text-white"
-              style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              <span className="font-mono text-sm">Download</span>
-            </a>
+            {pdfUrl ? (
+              <a
+                href={pdfUrl}
+                download={file?.name.replace('.md', '.pdf') ?? "document.pdf"}
+                className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[#1A1A1A] hover:text-white"
+                style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span className="font-mono text-sm">Download</span>
+              </a>
+            ) : (
+              <button
+                disabled
+                className="flex items-center gap-2 px-4 py-2 border-2 opacity-50"
+                style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span className="font-mono text-sm">Download</span>
+              </button>
+            )}
           </div>
 
           <div className="min-w-0 min-h-0 flex-1 overflow-auto">
@@ -430,20 +531,8 @@ export default function MarkdownToPDF() {
                 </div>
               </div>
             ) : pdfUrl ? (
-              <div
-                className="h-full border-[3px] overflow-hidden transition-colors duration-300"
-                style={{
-                  borderColor: 'var(--border-color)',
-                  backgroundColor: 'var(--bg-tertiary)',
-                  boxShadow: darkMode ? '6px 6px 0 0 #ffffff' : '6px 6px 0 0 #1A1A1A'
-                }}
-              >
-                <iframe
-                  src={`${pdfUrl}#toolbar=0&navpanes=0&view=FitH`}
-                  title="PDF Preview"
-                  className="w-full h-full block"
-                  style={{ border: 'none' }}
-                />
+              <div className="h-full overflow-hidden transition-colors duration-300 text-center">
+                <PdfCanvasViewer pdfUrl={pdfUrl} darkMode={darkMode} />
               </div>
             ) : (
               <div className="h-full flex items-center justify-center">
