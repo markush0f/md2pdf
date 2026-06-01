@@ -119,7 +119,10 @@ fn render_page_content(page: &markdown_to_pdf_core::LayoutPage, style: &PdfStyle
 fn push_page_background(content: &mut String, style: &PdfStyle) {
     let page_width = style.page.width;
     let page_height = style.page.height;
-    content.push_str(&format!("1 1 1 rg\n0 0 {page_width} {page_height} re f\n"));
+    let background = style.colors.page_background.fill();
+    content.push_str(&format!(
+        "{background}\n0 0 {page_width} {page_height} re f\n"
+    ));
 }
 
 fn text_font(font_size: f32) -> &'static str {
@@ -141,11 +144,11 @@ fn push_text(
 ) {
     let pdf_y = style.page.height - y;
     let color = if font == "F2" {
-        "0.10 0.18 0.30 rg"
+        style.colors.heading_text.fill()
     } else if font == "F3" {
-        "0.13 0.16 0.22 rg"
+        style.colors.code_text.fill()
     } else {
-        "0.20 0.23 0.28 rg"
+        style.colors.body_text.fill()
     };
 
     content.push_str(&format!(
@@ -156,9 +159,10 @@ fn push_text(
 
 fn push_rule(content: &mut String, style: &PdfStyle, x: f32, y: f32, width: f32) {
     let pdf_y = style.page.height - y;
+    let rule = style.colors.rule.stroke();
 
     content.push_str(&format!(
-        "0.82 0.85 0.90 RG\n0.75 w\n{x} {pdf_y} m {} {pdf_y} l S\n",
+        "{rule}\n0.75 w\n{x} {pdf_y} m {} {pdf_y} l S\n",
         x + width
     ));
 }
@@ -168,9 +172,11 @@ fn push_code_background(content: &mut String, style: &PdfStyle, x: f32, y: f32, 
     let height = line_count * style.code_block.line_height + style.code_block.padding * 2.0;
     let pdf_y = style.page.height - y - height;
     let usable_width = style.page.width - style.page.margin * 2.0;
+    let background = style.colors.code_background.fill();
+    let border = style.colors.code_border.stroke();
 
     content.push_str(&format!(
-        "0.95 0.96 0.98 rg\n{x} {pdf_y} {usable_width} {height} re f\n0.78 0.82 0.88 RG\n{x} {pdf_y} {usable_width} {height} re S\n"
+        "{background}\n{x} {pdf_y} {usable_width} {height} re f\n{border}\n{x} {pdf_y} {usable_width} {height} re S\n"
     ));
 }
 

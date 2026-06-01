@@ -6,6 +6,8 @@ interface FileData {
   content: string;
 }
 
+type PdfTheme = "light" | "dark";
+
 interface PdfCanvasViewerProps {
   pdfUrl: string;
   darkMode: boolean;
@@ -121,6 +123,7 @@ export default function MarkdownToPDF() {
     content: DEFAULT_CONTENT,
   });
   const [darkMode, setDarkMode] = useState(false);
+  const [pdfTheme, setPdfTheme] = useState<PdfTheme>("light");
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -148,7 +151,7 @@ export default function MarkdownToPDF() {
     };
   }, [pdfUrl]);
 
-  const generatePdf = useCallback(async (markdown?: string) => {
+  const generatePdf = useCallback(async (markdown?: string, theme: PdfTheme = pdfTheme) => {
     if (isGenerating) return;
     const markdownToRender = markdown ?? content;
     setIsGenerating(true);
@@ -163,7 +166,7 @@ export default function MarkdownToPDF() {
       const response = await fetch(`${API_BASE_URL}/convert`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ markdown: markdownToRender }),
+        body: JSON.stringify({ markdown: markdownToRender, theme }),
       });
 
       if (!response.ok) {
@@ -179,7 +182,7 @@ export default function MarkdownToPDF() {
     } finally {
       setIsGenerating(false);
     }
-  }, [content, isGenerating, pdfUrl]);
+  }, [content, isGenerating, pdfTheme, pdfUrl]);
 
   const handleFile = useCallback((selectedFile: File) => {
     if (!selectedFile.name.endsWith(".md")) {
@@ -217,6 +220,16 @@ export default function MarkdownToPDF() {
     }
     setError(null);
   }, [pdfUrl]);
+
+  const handlePdfThemeChange = useCallback((theme: PdfTheme) => {
+    setPdfTheme(theme);
+    if (pdfUrl) {
+      URL.revokeObjectURL(pdfUrl);
+      setPdfUrl(null);
+    }
+    setError(null);
+    generatePdf(content, theme);
+  }, [content, generatePdf, pdfUrl]);
 
   return (
     <div className="h-screen overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)' }}>
@@ -464,8 +477,30 @@ export default function MarkdownToPDF() {
                 {file?.name.replace('.md', '.pdf') || 'document.pdf'}
               </p>
               <p style={{ color: 'var(--text-secondary)' }}>
-                {pdfUrl ? "PDF generated" : "Not generated"}
+                {pdfUrl ? `PDF generated · ${pdfTheme === "dark" ? "Dark" : "Light"}` : "Not generated"}
               </p>
+            </div>
+            <div
+              className="flex items-center border-2 font-mono text-sm"
+              style={{ borderColor: 'var(--border-color)' }}
+            >
+              {(["light", "dark"] as const).map((theme) => {
+                const active = pdfTheme === theme;
+                return (
+                  <button
+                    key={theme}
+                    type="button"
+                    onClick={() => handlePdfThemeChange(theme)}
+                    className="px-3 py-2 capitalize transition-all"
+                    style={{
+                      backgroundColor: active ? 'var(--text-primary)' : 'transparent',
+                      color: active ? (darkMode ? '#1A1A1A' : '#ffffff') : 'var(--text-primary)'
+                    }}
+                  >
+                    {theme}
+                  </button>
+                );
+              })}
             </div>
             <button
               onClick={() => generatePdf()}

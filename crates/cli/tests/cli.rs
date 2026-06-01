@@ -58,3 +58,35 @@ fn defaults_output_to_input_name_with_pdf_extension() {
 
     fs::remove_dir_all(temp_dir).unwrap();
 }
+
+#[test]
+fn converts_markdown_file_with_dark_theme() {
+    let temp_dir = std::env::temp_dir().join(format!(
+        "markdown-to-pdf-cli-theme-test-{}",
+        std::process::id()
+    ));
+    fs::create_dir_all(&temp_dir).unwrap();
+
+    let input_path = temp_dir.join("input.md");
+    let output_path = temp_dir.join("output.pdf");
+    fs::write(&input_path, "# Hello\n\nGenerated from the CLI.\n").unwrap();
+
+    let output = Command::new(env!("CARGO_BIN_EXE_m2p"))
+        .arg("--theme")
+        .arg("dark")
+        .arg(&input_path)
+        .arg(&output_path)
+        .output()
+        .unwrap();
+
+    assert!(
+        output.status.success(),
+        "stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let pdf = fs::read_to_string(&output_path).unwrap();
+    assert!(pdf.contains("0.07 0.09 0.13 rg\n0 0 595 842 re f"));
+
+    fs::remove_dir_all(temp_dir).unwrap();
+}

@@ -12,4 +12,7 @@ pub use engine::MarkdownEngine;
 pub use error::MarkdownError;
 pub use layout::{LayoutDocument, LayoutElement, LayoutEngine, LayoutPage};
 pub use parser::parse_markdown;
-pub use style::{BodyStyle, CodeBlockStyle, HeadingLevelStyle, HeadingStyle, PageStyle, PdfStyle};
+pub use style::{
+    BodyStyle, CodeBlockStyle, ColorStyle, HeadingLevelStyle, HeadingStyle, PageStyle, PdfColor,
+    PdfStyle, PdfTheme,
+};

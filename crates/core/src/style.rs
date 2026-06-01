@@ -6,6 +6,13 @@ pub struct PdfStyle {
     pub body: BodyStyle,
     pub heading: HeadingStyle,
     pub code_block: CodeBlockStyle,
+    pub colors: ColorStyle,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PdfTheme {
+    Light,
+    Dark,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -45,6 +52,24 @@ pub struct CodeBlockStyle {
     pub margin_bottom: f32,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct ColorStyle {
+    pub page_background: PdfColor,
+    pub body_text: PdfColor,
+    pub heading_text: PdfColor,
+    pub code_text: PdfColor,
+    pub rule: PdfColor,
+    pub code_background: PdfColor,
+    pub code_border: PdfColor,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PdfColor {
+    pub red: f32,
+    pub green: f32,
+    pub blue: f32,
+}
+
 impl Default for PdfStyle {
     fn default() -> Self {
         Self::from_toml(DEFAULT_STYLE_TOML)
@@ -52,6 +77,31 @@ impl Default for PdfStyle {
 }
 
 impl PdfStyle {
+    pub fn light() -> Self {
+        Self::default()
+    }
+
+    pub fn dark() -> Self {
+        let mut style = Self::default();
+        style.colors = ColorStyle {
+            page_background: PdfColor::rgb(0.07, 0.09, 0.13),
+            body_text: PdfColor::rgb(0.84, 0.88, 0.95),
+            heading_text: PdfColor::rgb(0.96, 0.98, 1.0),
+            code_text: PdfColor::rgb(0.89, 0.93, 1.0),
+            rule: PdfColor::rgb(0.30, 0.36, 0.46),
+            code_background: PdfColor::rgb(0.12, 0.15, 0.21),
+            code_border: PdfColor::rgb(0.37, 0.45, 0.58),
+        };
+        style
+    }
+
+    pub fn for_theme(theme: PdfTheme) -> Self {
+        match theme {
+            PdfTheme::Light => Self::light(),
+            PdfTheme::Dark => Self::dark(),
+        }
+    }
+
     pub fn from_toml(input: &str) -> Self {
         let mut style = Self::fallback();
         let mut section = String::new();
@@ -144,7 +194,30 @@ impl PdfStyle {
                 margin_top: 2.0,
                 margin_bottom: 28.0,
             },
+            colors: ColorStyle {
+                page_background: PdfColor::rgb(1.0, 1.0, 1.0),
+                body_text: PdfColor::rgb(0.20, 0.23, 0.28),
+                heading_text: PdfColor::rgb(0.10, 0.18, 0.30),
+                code_text: PdfColor::rgb(0.13, 0.16, 0.22),
+                rule: PdfColor::rgb(0.82, 0.85, 0.90),
+                code_background: PdfColor::rgb(0.95, 0.96, 0.98),
+                code_border: PdfColor::rgb(0.78, 0.82, 0.88),
+            },
         }
+    }
+}
+
+impl PdfColor {
+    pub const fn rgb(red: f32, green: f32, blue: f32) -> Self {
+        Self { red, green, blue }
+    }
+
+    pub fn fill(self) -> String {
+        format!("{} {} {} rg", self.red, self.green, self.blue)
+    }
+
+    pub fn stroke(self) -> String {
+        format!("{} {} {} RG", self.red, self.green, self.blue)
     }
 }
 

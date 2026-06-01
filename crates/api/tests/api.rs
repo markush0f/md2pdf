@@ -50,6 +50,48 @@ async fn convert_returns_pdf_bytes() {
 }
 
 #[tokio::test]
+async fn convert_accepts_dark_pdf_theme() {
+    let response = router()
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/convert")
+                .header(header::CONTENT_TYPE, "application/json")
+                .body(Body::from(
+                    json!({ "markdown": "# Hello", "theme": "dark" }).to_string(),
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+
+    let body = response.into_body().collect().await.unwrap().to_bytes();
+    let pdf = String::from_utf8(body.to_vec()).unwrap();
+    assert!(pdf.contains("0.07 0.09 0.13 rg\n0 0 595 842 re f"));
+}
+
+#[tokio::test]
+async fn convert_rejects_unknown_pdf_theme() {
+    let response = router()
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/convert")
+                .header(header::CONTENT_TYPE, "application/json")
+                .body(Body::from(
+                    json!({ "markdown": "# Hello", "theme": "sepia" }).to_string(),
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
 async fn convert_rejects_empty_markdown() {
     let response = router()
         .oneshot(

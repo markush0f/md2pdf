@@ -4,7 +4,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use markdown_to_pdf_core::MarkdownEngine;
+use markdown_to_pdf_core::{MarkdownEngine, PdfStyle, PdfTheme};
 use markdown_to_pdf_renderer::PdfRenderer;
 
 use crate::{
@@ -31,10 +31,20 @@ pub async fn health() -> Json<HealthResponse> {
     )
 )]
 pub async fn convert(Json(payload): Json<ConvertRequest>) -> Result<impl IntoResponse, ApiError> {
+    let theme = match payload.theme.as_deref().unwrap_or("light") {
+        "light" => PdfTheme::Light,
+        "dark" => PdfTheme::Dark,
+        value => {
+            return Err(ApiError::BadRequest(format!(
+                "unsupported PDF theme: {value}"
+            )))
+        }
+    };
+    let style = PdfStyle::for_theme(theme);
     let layout = MarkdownEngine::new()
         .compile(&payload.markdown)
         .map_err(|error| ApiError::BadRequest(format!("failed to parse markdown: {error}")))?;
-    let pdf = PdfRenderer::new().render(&layout);
+    let pdf = PdfRenderer::with_style(style).render(&layout);
 
     let mut headers = HeaderMap::new();
     headers.insert(
