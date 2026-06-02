@@ -39,26 +39,8 @@ code:not(pre code) {
   overflow-wrap: anywhere;
 }
 
-.dark .theme-toggle:hover svg {
-  color: #1A1A1A !important;
-}
-
-.theme-toggle:hover svg {
-  color: #ffffff !important;
-}
-
 .border-2 {
   transition: background-color 0.3s, color 0.3s;
-}
-
-html:not(.dark) .border-2:hover {
-  background-color: #1A1A1A !important;
-  color: #ffffff !important;
-}
-
-html.dark .border-2:hover {
-  background-color: #ffffff !important;
-  color: #1A1A1A !important;
 }
 
 :root {

@@ -92,6 +92,63 @@ async fn convert_rejects_unknown_pdf_theme() {
 }
 
 #[tokio::test]
+async fn convert_accepts_custom_pdf_colors() {
+    let response = router()
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/convert")
+                .header(header::CONTENT_TYPE, "application/json")
+                .body(Body::from(
+                    json!({
+                        "markdown": "# Hello",
+                        "theme": "light",
+                        "colors": {
+                            "pageBackground": "#ff0000",
+                            "headingText": "#00ff00"
+                        }
+                    })
+                    .to_string(),
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+
+    let body = response.into_body().collect().await.unwrap().to_bytes();
+    let pdf = String::from_utf8(body.to_vec()).unwrap();
+    assert!(pdf.contains("1 0 0 rg\n0 0 595 842 re f"));
+    assert!(pdf.contains("0 1 0 rg"));
+}
+
+#[tokio::test]
+async fn convert_rejects_invalid_custom_pdf_color() {
+    let response = router()
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/convert")
+                .header(header::CONTENT_TYPE, "application/json")
+                .body(Body::from(
+                    json!({
+                        "markdown": "# Hello",
+                        "colors": {
+                            "pageBackground": "red"
+                        }
+                    })
+                    .to_string(),
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
 async fn convert_rejects_empty_markdown() {
     let response = router()
         .oneshot(

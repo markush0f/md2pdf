@@ -1,4 +1,10 @@
 import { useState, useCallback, useEffect, useRef } from "react";
+import type {
+  AnchorHTMLAttributes,
+  ButtonHTMLAttributes,
+  LabelHTMLAttributes,
+  ReactNode,
+} from "react";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.mjs?url";
 
 interface FileData {
@@ -8,12 +14,124 @@ interface FileData {
 
 type PdfTheme = "light" | "dark";
 
+type PdfColors = {
+  pageBackground: string;
+  bodyText: string;
+  headingText: string;
+  codeText: string;
+  rule: string;
+  codeBackground: string;
+  codeBorder: string;
+};
+
+type PdfColorKey = keyof PdfColors;
+
+const LIGHT_PDF_COLORS: PdfColors = {
+  pageBackground: "#ffffff",
+  bodyText: "#333a47",
+  headingText: "#1a2e4d",
+  codeText: "#212938",
+  rule: "#d1d9e6",
+  codeBackground: "#f2f5fa",
+  codeBorder: "#c7d1e0",
+};
+
+const DARK_PDF_COLORS: PdfColors = {
+  pageBackground: "#121721",
+  bodyText: "#d6e0f2",
+  headingText: "#f5faff",
+  codeText: "#e3edff",
+  rule: "#4d5c75",
+  codeBackground: "#1f2636",
+  codeBorder: "#5e7394",
+};
+
+const COLOR_FIELDS: Array<{ key: PdfColorKey; label: string }> = [
+  { key: "pageBackground", label: "Page" },
+  { key: "bodyText", label: "Body" },
+  { key: "headingText", label: "Heading" },
+  { key: "codeText", label: "Code text" },
+  { key: "rule", label: "Rule" },
+  { key: "codeBackground", label: "Code bg" },
+  { key: "codeBorder", label: "Code border" },
+];
+
+function colorsForTheme(theme: PdfTheme) {
+  return theme === "dark" ? DARK_PDF_COLORS : LIGHT_PDF_COLORS;
+}
+
+type ToolbarButtonProps =
+  | ({ as?: "button" } & ButtonHTMLAttributes<HTMLButtonElement>)
+  | ({ as: "a" } & AnchorHTMLAttributes<HTMLAnchorElement>)
+  | ({ as: "label" } & LabelHTMLAttributes<HTMLLabelElement>);
+
+const toolbarButtonClassName =
+  "flex items-center gap-2 px-4 py-2 border-2 transition-all";
+const toolbarButtonStyle = {
+  borderColor: "var(--border-color)",
+  color: "var(--text-primary)",
+};
+
+function ToolbarButton(props: ToolbarButtonProps) {
+  const { as = "button", className = "", style, children, ...rest } = props;
+  const combinedClassName = `${toolbarButtonClassName} ${className}`.trim();
+  const combinedStyle = { ...toolbarButtonStyle, ...style };
+
+  if (as === "a") {
+    return (
+      <a
+        className={combinedClassName}
+        style={combinedStyle}
+        {...(rest as AnchorHTMLAttributes<HTMLAnchorElement>)}
+      >
+        {children as ReactNode}
+      </a>
+    );
+  }
+
+  if (as === "label") {
+    return (
+      <label
+        className={combinedClassName}
+        style={combinedStyle}
+        {...(rest as LabelHTMLAttributes<HTMLLabelElement>)}
+      >
+        {children as ReactNode}
+      </label>
+    );
+  }
+
+  return (
+    <button
+      className={combinedClassName}
+      style={combinedStyle}
+      {...(rest as ButtonHTMLAttributes<HTMLButtonElement>)}
+    >
+      {children as ReactNode}
+    </button>
+  );
+}
+
 interface PdfCanvasViewerProps {
   pdfUrl: string;
   darkMode: boolean;
 }
 
-function PdfCanvasViewer({ pdfUrl, darkMode }: PdfCanvasViewerProps) {
+interface PdfCanvasLayerProps {
+  pdfUrl: string;
+  darkMode: boolean;
+  visible: boolean;
+  onReady: () => void;
+  onTransitionEnd: () => void;
+}
+
+function PdfCanvasLayer({
+  pdfUrl,
+  darkMode,
+  visible,
+  onReady,
+  onTransitionEnd,
+}: PdfCanvasLayerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -79,6 +197,8 @@ function PdfCanvasViewer({ pdfUrl, darkMode }: PdfCanvasViewerProps) {
         errorMessage.style.color = "#dc2626";
         errorMessage.textContent = message;
         container.appendChild(errorMessage);
+      } finally {
+        if (!cancelled) onReady();
       }
     }
 
@@ -91,7 +211,72 @@ function PdfCanvasViewer({ pdfUrl, darkMode }: PdfCanvasViewerProps) {
     };
   }, [darkMode, pdfUrl]);
 
-  return <div ref={containerRef} className="h-full w-full overflow-y-auto px-5" />;
+  return (
+    <div
+      ref={containerRef}
+      onTransitionEnd={onTransitionEnd}
+      className="col-start-1 row-start-1 transition-opacity duration-500 ease-in-out"
+      style={{ opacity: visible ? 1 : 0 }}
+    />
+  );
+}
+
+function PdfCanvasViewer({ pdfUrl, darkMode }: PdfCanvasViewerProps) {
+  const nextLayerId = useRef(0);
+  const [layers, setLayers] = useState([
+    { id: 0, pdfUrl, visible: true },
+  ]);
+
+  useEffect(() => {
+    setLayers((previousLayers) => {
+      const latestLayer = previousLayers[previousLayers.length - 1];
+      if (latestLayer?.pdfUrl === pdfUrl) {
+        return previousLayers;
+      }
+
+      nextLayerId.current += 1;
+      return [
+        ...previousLayers,
+        { id: nextLayerId.current, pdfUrl, visible: false },
+      ];
+    });
+  }, [pdfUrl]);
+
+  const handleLayerReady = useCallback((id: number) => {
+    setLayers((previousLayers) =>
+      previousLayers.map((layer) =>
+        layer.id === id ? { ...layer, visible: true } : layer
+      )
+    );
+  }, []);
+
+  const handleLayerTransitionEnd = useCallback((id: number) => {
+    setLayers((previousLayers) => {
+      const latestLayer = previousLayers[previousLayers.length - 1];
+      if (latestLayer?.id !== id || !latestLayer.visible) {
+        return previousLayers;
+      }
+
+      return [latestLayer];
+    });
+  }, []);
+
+  return (
+    <div className="h-full w-full overflow-y-auto px-5">
+      <div className="grid">
+        {layers.map((layer) => (
+          <PdfCanvasLayer
+            key={layer.id}
+            pdfUrl={layer.pdfUrl}
+            darkMode={darkMode}
+            visible={layer.visible}
+            onReady={() => handleLayerReady(layer.id)}
+            onTransitionEnd={() => handleLayerTransitionEnd(layer.id)}
+          />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 const API_BASE_URL =
@@ -124,6 +309,8 @@ export default function MarkdownToPDF() {
   });
   const [darkMode, setDarkMode] = useState(false);
   const [pdfTheme, setPdfTheme] = useState<PdfTheme>("light");
+  const [pdfColors, setPdfColors] = useState<PdfColors>(LIGHT_PDF_COLORS);
+  const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -151,13 +338,18 @@ export default function MarkdownToPDF() {
     };
   }, [pdfUrl]);
 
-  const generatePdf = useCallback(async (markdown?: string, theme: PdfTheme = pdfTheme) => {
+  const generatePdf = useCallback(async (
+    markdown?: string,
+    theme: PdfTheme = pdfTheme,
+    keepCurrentPreview = false,
+    colors: PdfColors = pdfColors
+  ) => {
     if (isGenerating) return;
     const markdownToRender = markdown ?? content;
     setIsGenerating(true);
     setError(null);
 
-    if (pdfUrl) {
+    if (pdfUrl && !keepCurrentPreview) {
       URL.revokeObjectURL(pdfUrl);
       setPdfUrl(null);
     }
@@ -166,7 +358,7 @@ export default function MarkdownToPDF() {
       const response = await fetch(`${API_BASE_URL}/convert`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ markdown: markdownToRender, theme }),
+        body: JSON.stringify({ markdown: markdownToRender, theme, colors }),
       });
 
       if (!response.ok) {
@@ -182,7 +374,7 @@ export default function MarkdownToPDF() {
     } finally {
       setIsGenerating(false);
     }
-  }, [content, isGenerating, pdfTheme, pdfUrl]);
+  }, [content, isGenerating, pdfColors, pdfTheme, pdfUrl]);
 
   const handleFile = useCallback((selectedFile: File) => {
     if (!selectedFile.name.endsWith(".md")) {
@@ -222,14 +414,26 @@ export default function MarkdownToPDF() {
   }, [pdfUrl]);
 
   const handlePdfThemeChange = useCallback((theme: PdfTheme) => {
+    const themeColors = colorsForTheme(theme);
     setPdfTheme(theme);
-    if (pdfUrl) {
-      URL.revokeObjectURL(pdfUrl);
-      setPdfUrl(null);
-    }
+    setPdfColors(themeColors);
     setError(null);
-    generatePdf(content, theme);
-  }, [content, generatePdf, pdfUrl]);
+    generatePdf(content, theme, true, themeColors);
+  }, [content, generatePdf]);
+
+  const handlePdfColorChange = useCallback((key: PdfColorKey, value: string) => {
+    const nextColors = { ...pdfColors, [key]: value };
+    setPdfColors(nextColors);
+    setError(null);
+    generatePdf(content, pdfTheme, true, nextColors);
+  }, [content, generatePdf, pdfColors, pdfTheme]);
+
+  const handleResetPdfColors = useCallback(() => {
+    const themeColors = colorsForTheme(pdfTheme);
+    setPdfColors(themeColors);
+    setError(null);
+    generatePdf(content, pdfTheme, true, themeColors);
+  }, [content, generatePdf, pdfTheme]);
 
   return (
     <div className="h-screen overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)' }}>
@@ -256,11 +460,11 @@ export default function MarkdownToPDF() {
                 {file && (
                   <button
                     onClick={() => setFile(null)}
-                    className="group flex items-center gap-2 px-3 py-2 border-2 transition-all hover:bg-[#1A1A1A] dark:hover:bg-white"
+                    className="group flex items-center gap-2 px-3 py-2 border-2 transition-all"
                     style={{ borderColor: 'var(--text-primary)' }}
                   >
                     <svg
-                      className="w-4 h-4 group-hover:text-white dark:group-hover:text-[#1A1A1A] transition-colors"
+                      className="w-4 h-4 transition-colors"
                       style={{ color: 'var(--text-primary)' }}
                       fill="none"
                       stroke="currentColor"
@@ -274,7 +478,7 @@ export default function MarkdownToPDF() {
                       />
                     </svg>
                     <span
-                      className="font-mono text-xs group-hover:text-white dark:group-hover:text-[#1A1A1A] transition-colors"
+                      className="font-mono text-xs transition-colors"
                       style={{ color: 'var(--text-primary)' }}
                     >
                       Clear
@@ -283,7 +487,7 @@ export default function MarkdownToPDF() {
                 )}
                 <button
                   onClick={() => setDarkMode(!darkMode)}
-                  className="theme-toggle w-10 h-10 border-2 flex items-center justify-center transition-all hover:bg-[#1A1A1A] dark:hover:bg-white"
+                  className="theme-toggle w-10 h-10 border-2 flex items-center justify-center transition-all"
                   style={{ borderColor: 'var(--text-primary)', color: darkMode ? '#ffffff' : 'var(--text-primary)' }}
                 >
                   {darkMode ? (
@@ -354,10 +558,7 @@ export default function MarkdownToPDF() {
                   {content.split("\n").length} lines
                 </p>
               </div>
-              <label
-                className="flex items-center gap-2 px-4 py-2 border-2 cursor-pointer transition-all hover:bg-[#1A1A1A] hover:text-white"
-                style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
-              >
+              <ToolbarButton as="label" className="cursor-pointer">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                 </svg>
@@ -368,17 +569,15 @@ export default function MarkdownToPDF() {
                   onChange={handleInputChange}
                   className="hidden"
                 />
-              </label>
-              <button
+              </ToolbarButton>
+              <ToolbarButton
                 onClick={handleReset}
-                className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[#1A1A1A] hover:text-white"
-                style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
                 <span className="font-mono text-sm">Reset</span>
-              </button>
+              </ToolbarButton>
             </div>
             <div
               className="min-w-0 min-h-0 flex-1 border-[3px] overflow-hidden transition-colors duration-300"
@@ -502,40 +701,110 @@ export default function MarkdownToPDF() {
                 );
               })}
             </div>
-            <button
+            <ToolbarButton
               onClick={() => generatePdf()}
               disabled={isGenerating}
-              className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[#1A1A1A] hover:text-white disabled:opacity-50"
-              style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+              className="disabled:opacity-50"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               <span className="font-mono text-sm">Regenerate</span>
-            </button>
+            </ToolbarButton>
             {pdfUrl ? (
-              <a
+              <ToolbarButton
+                as="a"
                 href={pdfUrl}
                 download={file?.name.replace('.md', '.pdf') ?? "document.pdf"}
-                className="flex items-center gap-2 px-4 py-2 border-2 transition-all hover:bg-[#1A1A1A] hover:text-white"
-                style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 <span className="font-mono text-sm">Download</span>
-              </a>
+              </ToolbarButton>
             ) : (
-              <button
+              <ToolbarButton
                 disabled
-                className="flex items-center gap-2 px-4 py-2 border-2 opacity-50"
-                style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                className="opacity-50"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 <span className="font-mono text-sm">Download</span>
-              </button>
+              </ToolbarButton>
+            )}
+          </div>
+
+          <div
+            className="mb-6 shrink-0 border-2 transition-colors duration-300"
+            style={{
+              borderColor: 'var(--border-color)',
+              backgroundColor: 'var(--bg-tertiary)'
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setIsCustomizeOpen((open) => !open)}
+              className="flex w-full items-center justify-between gap-4 p-4 text-left"
+              style={{ color: 'var(--text-primary)' }}
+              aria-expanded={isCustomizeOpen}
+            >
+              <div>
+                <p
+                  className="font-mono text-sm font-medium uppercase tracking-widest"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  Customize
+                </p>
+                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                  PDF colors
+                </p>
+              </div>
+              <svg
+                className="h-4 w-4 shrink-0 transition-transform duration-300"
+                style={{
+                  color: 'var(--text-primary)',
+                  transform: isCustomizeOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+                }}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {isCustomizeOpen && (
+              <div className="px-4 pb-4">
+                <div className="mb-4 flex justify-end">
+                  <ToolbarButton
+                    onClick={handleResetPdfColors}
+                    className="px-3 py-1 text-xs"
+                  >
+                    Reset colors
+                  </ToolbarButton>
+                </div>
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
+                  {COLOR_FIELDS.map((field) => (
+                    <label
+                      key={field.key}
+                      className="flex min-w-0 items-center justify-between gap-2 border-2 px-2 py-2"
+                      style={{
+                        borderColor: 'var(--border-muted)',
+                        color: 'var(--text-primary)'
+                      }}
+                    >
+                      <span className="truncate font-mono text-xs">{field.label}</span>
+                      <input
+                        type="color"
+                        value={pdfColors[field.key]}
+                        onChange={(event) => handlePdfColorChange(field.key, event.target.value)}
+                        className="h-7 w-8 shrink-0 cursor-pointer bg-transparent p-0"
+                        aria-label={`${field.label} color`}
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
 

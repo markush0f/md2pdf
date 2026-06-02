@@ -212,6 +212,23 @@ impl PdfColor {
         Self { red, green, blue }
     }
 
+    pub fn from_hex(value: &str) -> Option<Self> {
+        let hex = value.strip_prefix('#')?;
+        if hex.len() != 6 || !hex.chars().all(|char| char.is_ascii_hexdigit()) {
+            return None;
+        }
+
+        let red = u8::from_str_radix(&hex[0..2], 16).ok()?;
+        let green = u8::from_str_radix(&hex[2..4], 16).ok()?;
+        let blue = u8::from_str_radix(&hex[4..6], 16).ok()?;
+
+        Some(Self::rgb(
+            red as f32 / 255.0,
+            green as f32 / 255.0,
+            blue as f32 / 255.0,
+        ))
+    }
+
     pub fn fill(self) -> String {
         format!("{} {} {} rg", self.red, self.green, self.blue)
     }
@@ -224,5 +241,25 @@ impl PdfColor {
 fn set_number(value: &str, target: &mut f32) {
     if let Ok(value) = value.parse() {
         *target = value;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::PdfColor;
+
+    #[test]
+    fn parses_hex_pdf_color() {
+        assert_eq!(
+            PdfColor::from_hex("#ff8000"),
+            Some(PdfColor::rgb(1.0, 128.0 / 255.0, 0.0))
+        );
+    }
+
+    #[test]
+    fn rejects_invalid_hex_pdf_color() {
+        assert_eq!(PdfColor::from_hex("ff8000"), None);
+        assert_eq!(PdfColor::from_hex("#ff80"), None);
+        assert_eq!(PdfColor::from_hex("#ff80zz"), None);
     }
 }

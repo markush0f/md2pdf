@@ -5,6 +5,7 @@ use utoipa::OpenApi;
     paths(crate::handlers::health, crate::handlers::convert),
     components(schemas(
         crate::models::ConvertRequest,
+        crate::models::ConvertColors,
         crate::models::ErrorResponse,
         crate::models::HealthResponse
     )),
