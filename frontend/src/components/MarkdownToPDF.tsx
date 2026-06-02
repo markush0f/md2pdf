@@ -114,12 +114,10 @@ function ToolbarButton(props: ToolbarButtonProps) {
 
 interface PdfCanvasViewerProps {
   pdfUrl: string;
-  darkMode: boolean;
 }
 
 interface PdfCanvasLayerProps {
   pdfUrl: string;
-  darkMode: boolean;
   visible: boolean;
   onReady: () => void;
   onTransitionEnd: () => void;
@@ -127,7 +125,6 @@ interface PdfCanvasLayerProps {
 
 function PdfCanvasLayer({
   pdfUrl,
-  darkMode,
   visible,
   onReady,
   onTransitionEnd,
@@ -164,10 +161,8 @@ function PdfCanvasLayer({
           pageFrame.className = "mx-auto mb-6";
           pageFrame.style.width = `${viewport.width}px`;
           pageFrame.style.maxWidth = "100%";
-          pageFrame.style.border = darkMode ? "2px solid #ffffff" : "2px solid #1A1A1A";
-          pageFrame.style.boxShadow = darkMode
-            ? "6px 6px 0 0 #ffffff"
-            : "6px 6px 0 0 #1A1A1A";
+          pageFrame.style.border = "2px solid var(--border-color)";
+          pageFrame.style.boxShadow = "6px 6px 0 0 var(--border-color)";
 
           const canvas = document.createElement("canvas");
           canvas.width = Math.floor(viewport.width * deviceScale);
@@ -209,7 +204,7 @@ function PdfCanvasLayer({
       loadingTask?.destroy();
       container.replaceChildren();
     };
-  }, [darkMode, pdfUrl]);
+  }, [pdfUrl]);
 
   return (
     <div
@@ -221,7 +216,7 @@ function PdfCanvasLayer({
   );
 }
 
-function PdfCanvasViewer({ pdfUrl, darkMode }: PdfCanvasViewerProps) {
+function PdfCanvasViewer({ pdfUrl }: PdfCanvasViewerProps) {
   const nextLayerId = useRef(0);
   const [layers, setLayers] = useState([
     { id: 0, pdfUrl, visible: true },
@@ -268,7 +263,6 @@ function PdfCanvasViewer({ pdfUrl, darkMode }: PdfCanvasViewerProps) {
           <PdfCanvasLayer
             key={layer.id}
             pdfUrl={layer.pdfUrl}
-            darkMode={darkMode}
             visible={layer.visible}
             onReady={() => handleLayerReady(layer.id)}
             onTransitionEnd={() => handleLayerTransitionEnd(layer.id)}
@@ -444,7 +438,7 @@ export default function MarkdownToPDF() {
         >
           <header className="mb-6 shrink-0">
             <div className="h-1 bg-[#E85D04] mb-4" />
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between gap-4">
               <div>
                 <h1
                   className="font-serif text-3xl font-bold tracking-tight"
@@ -461,7 +455,7 @@ export default function MarkdownToPDF() {
                   <button
                     onClick={() => setFile(null)}
                     className="group flex items-center gap-2 px-3 py-2 border-2 transition-all"
-                    style={{ borderColor: 'var(--text-primary)' }}
+                    style={{ borderColor: 'var(--border-color)' }}
                   >
                     <svg
                       className="w-4 h-4 transition-colors"
@@ -488,7 +482,7 @@ export default function MarkdownToPDF() {
                 <button
                   onClick={() => setDarkMode(!darkMode)}
                   className="theme-toggle w-10 h-10 border-2 flex items-center justify-center transition-all"
-                  style={{ borderColor: 'var(--text-primary)', color: darkMode ? '#ffffff' : 'var(--text-primary)' }}
+                  style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                 >
                   {darkMode ? (
                     <svg
@@ -584,7 +578,7 @@ export default function MarkdownToPDF() {
               style={{
                 borderColor: 'var(--border-color)',
                 backgroundColor: 'var(--bg-tertiary)',
-                boxShadow: darkMode ? '6px 6px 0 0 #ffffff' : '6px 6px 0 0 #1A1A1A'
+                boxShadow: '6px 6px 0 0 var(--border-color)'
               }}
             >
               <textarea
@@ -645,6 +639,72 @@ export default function MarkdownToPDF() {
                   Preview
                 </p>
               </div>
+              <div className="relative pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsCustomizeOpen((open) => !open)}
+                  className="flex items-center gap-2 border-2 px-3 py-2 font-mono text-sm transition-all"
+                  style={{
+                    borderColor: 'var(--border-color)',
+                    backgroundColor: isCustomizeOpen ? 'var(--text-primary)' : 'transparent',
+                    color: isCustomizeOpen ? (darkMode ? '#1A1A1A' : '#ffffff') : 'var(--text-primary)'
+                  }}
+                  aria-expanded={isCustomizeOpen}
+                >
+                  <span>Customize</span>
+                  <svg
+                    className="h-4 w-4 shrink-0 transition-transform duration-300"
+                    style={{ transform: isCustomizeOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {isCustomizeOpen && (
+                  <div
+                    className="fixed left-4 right-4 top-24 z-20 max-h-[calc(100vh-8rem)] overflow-auto border-2 p-3 shadow-[6px_6px_0_0_var(--border-color)] transition-colors duration-300 md:left-auto md:w-[min(42rem,calc(100vw-2rem))]"
+                    style={{
+                      borderColor: 'var(--border-color)',
+                      backgroundColor: 'var(--bg-tertiary)'
+                    }}
+                  >
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <p className="font-mono text-xs uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>
+                        PDF colors
+                      </p>
+                      <ToolbarButton
+                        onClick={handleResetPdfColors}
+                        className="px-3 py-1 text-xs"
+                      >
+                        Reset colors
+                      </ToolbarButton>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-7">
+                      {COLOR_FIELDS.map((field) => (
+                        <label
+                          key={field.key}
+                          className="flex min-w-0 items-center justify-between gap-2 border-2 px-2 py-2"
+                          style={{
+                            borderColor: 'var(--border-muted)',
+                            color: 'var(--text-primary)'
+                          }}
+                        >
+                          <span className="truncate font-mono text-xs">{field.label}</span>
+                          <input
+                            type="color"
+                            value={pdfColors[field.key]}
+                            onChange={(event) => handlePdfColorChange(field.key, event.target.value)}
+                            className="h-7 w-8 shrink-0 cursor-pointer bg-transparent p-0"
+                            aria-label={`${field.label} color`}
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </header>
 
@@ -679,27 +739,29 @@ export default function MarkdownToPDF() {
                 {pdfUrl ? `PDF generated · ${pdfTheme === "dark" ? "Dark" : "Light"}` : "Not generated"}
               </p>
             </div>
-            <div
-              className="flex items-center border-2 font-mono text-sm"
-              style={{ borderColor: 'var(--border-color)' }}
-            >
-              {(["light", "dark"] as const).map((theme) => {
-                const active = pdfTheme === theme;
-                return (
-                  <button
-                    key={theme}
-                    type="button"
-                    onClick={() => handlePdfThemeChange(theme)}
-                    className="px-3 py-2 capitalize transition-all"
-                    style={{
-                      backgroundColor: active ? 'var(--text-primary)' : 'transparent',
-                      color: active ? (darkMode ? '#1A1A1A' : '#ffffff') : 'var(--text-primary)'
-                    }}
-                  >
-                    {theme}
-                  </button>
-                );
-              })}
+            <div className="flex items-center gap-2">
+              <div
+                className="flex items-center border-2 font-mono text-sm"
+                style={{ borderColor: 'var(--border-color)' }}
+              >
+                {(["light", "dark"] as const).map((theme) => {
+                  const active = pdfTheme === theme;
+                  return (
+                    <button
+                      key={theme}
+                      type="button"
+                      onClick={() => handlePdfThemeChange(theme)}
+                      className="px-3 py-2 capitalize transition-all"
+                      style={{
+                        backgroundColor: active ? 'var(--text-primary)' : 'transparent',
+                        color: active ? (darkMode ? '#1A1A1A' : '#ffffff') : 'var(--text-primary)'
+                      }}
+                    >
+                      {theme}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             <ToolbarButton
               onClick={() => generatePdf()}
@@ -735,79 +797,6 @@ export default function MarkdownToPDF() {
             )}
           </div>
 
-          <div
-            className="mb-6 shrink-0 border-2 transition-colors duration-300"
-            style={{
-              borderColor: 'var(--border-color)',
-              backgroundColor: 'var(--bg-tertiary)'
-            }}
-          >
-            <button
-              type="button"
-              onClick={() => setIsCustomizeOpen((open) => !open)}
-              className="flex w-full items-center justify-between gap-4 p-4 text-left"
-              style={{ color: 'var(--text-primary)' }}
-              aria-expanded={isCustomizeOpen}
-            >
-              <div>
-                <p
-                  className="font-mono text-sm font-medium uppercase tracking-widest"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  Customize
-                </p>
-                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                  PDF colors
-                </p>
-              </div>
-              <svg
-                className="h-4 w-4 shrink-0 transition-transform duration-300"
-                style={{
-                  color: 'var(--text-primary)',
-                  transform: isCustomizeOpen ? 'rotate(180deg)' : 'rotate(0deg)'
-                }}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            {isCustomizeOpen && (
-              <div className="px-4 pb-4">
-                <div className="mb-4 flex justify-end">
-                  <ToolbarButton
-                    onClick={handleResetPdfColors}
-                    className="px-3 py-1 text-xs"
-                  >
-                    Reset colors
-                  </ToolbarButton>
-                </div>
-                <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
-                  {COLOR_FIELDS.map((field) => (
-                    <label
-                      key={field.key}
-                      className="flex min-w-0 items-center justify-between gap-2 border-2 px-2 py-2"
-                      style={{
-                        borderColor: 'var(--border-muted)',
-                        color: 'var(--text-primary)'
-                      }}
-                    >
-                      <span className="truncate font-mono text-xs">{field.label}</span>
-                      <input
-                        type="color"
-                        value={pdfColors[field.key]}
-                        onChange={(event) => handlePdfColorChange(field.key, event.target.value)}
-                        className="h-7 w-8 shrink-0 cursor-pointer bg-transparent p-0"
-                        aria-label={`${field.label} color`}
-                      />
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
           <div className="min-w-0 min-h-0 flex-1 overflow-auto">
             {!content.trim() ? (
               <div className="h-full flex items-center justify-center">
@@ -836,7 +825,7 @@ export default function MarkdownToPDF() {
               </div>
             ) : pdfUrl ? (
               <div className="h-full overflow-hidden transition-colors duration-300 text-center">
-                <PdfCanvasViewer pdfUrl={pdfUrl} darkMode={darkMode} />
+                <PdfCanvasViewer pdfUrl={pdfUrl} />
               </div>
             ) : (
               <div className="h-full flex items-center justify-center">
