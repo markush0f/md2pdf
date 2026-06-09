@@ -118,16 +118,14 @@ interface PdfCanvasViewerProps {
 
 interface PdfCanvasLayerProps {
   pdfUrl: string;
-  visible: boolean;
+  availableWidth: number;
   onReady: () => void;
-  onTransitionEnd: () => void;
 }
 
 function PdfCanvasLayer({
   pdfUrl,
-  visible,
+  availableWidth,
   onReady,
-  onTransitionEnd,
 }: PdfCanvasLayerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -152,8 +150,8 @@ function PdfCanvasLayer({
           if (cancelled || !container) return;
 
           const baseViewport = page.getViewport({ scale: 1 });
-          const availableWidth = Math.max(container.parentElement?.clientWidth ?? container.clientWidth, 280);
-          const scale = Math.min((availableWidth - 40) / baseViewport.width, 2.4);
+          const renderWidth = Math.max(availableWidth, 280);
+          const scale = Math.min((renderWidth - 40) / baseViewport.width, 2.4);
           const viewport = page.getViewport({ scale });
           const deviceScale = window.devicePixelRatio || 1;
 
@@ -204,70 +202,44 @@ function PdfCanvasLayer({
       loadingTask?.destroy();
       container.replaceChildren();
     };
-  }, [pdfUrl]);
+  }, [availableWidth, pdfUrl]);
 
   return (
     <div
       ref={containerRef}
-      onTransitionEnd={onTransitionEnd}
-      className="col-start-1 row-start-1 transition-opacity duration-500 ease-in-out"
-      style={{ opacity: visible ? 1 : 0 }}
+      className="col-start-1 row-start-1"
     />
   );
 }
 
 function PdfCanvasViewer({ pdfUrl }: PdfCanvasViewerProps) {
-  const nextLayerId = useRef(0);
-  const [layers, setLayers] = useState([
-    { id: 0, pdfUrl, visible: true },
-  ]);
+  const viewerRef = useRef<HTMLDivElement | null>(null);
+  const [availableWidth, setAvailableWidth] = useState(0);
 
   useEffect(() => {
-    setLayers((previousLayers) => {
-      const latestLayer = previousLayers[previousLayers.length - 1];
-      if (latestLayer?.pdfUrl === pdfUrl) {
-        return previousLayers;
-      }
+    const viewer = viewerRef.current;
+    if (!viewer) return;
 
-      nextLayerId.current += 1;
-      return [
-        ...previousLayers,
-        { id: nextLayerId.current, pdfUrl, visible: false },
-      ];
-    });
-  }, [pdfUrl]);
+    const updateWidth = () => setAvailableWidth(viewer.clientWidth);
+    updateWidth();
 
-  const handleLayerReady = useCallback((id: number) => {
-    setLayers((previousLayers) =>
-      previousLayers.map((layer) =>
-        layer.id === id ? { ...layer, visible: true } : layer
-      )
-    );
-  }, []);
+    const resizeObserver = new ResizeObserver(updateWidth);
+    resizeObserver.observe(viewer);
 
-  const handleLayerTransitionEnd = useCallback((id: number) => {
-    setLayers((previousLayers) => {
-      const latestLayer = previousLayers[previousLayers.length - 1];
-      if (latestLayer?.id !== id || !latestLayer.visible) {
-        return previousLayers;
-      }
-
-      return [latestLayer];
-    });
+    return () => resizeObserver.disconnect();
   }, []);
 
   return (
-    <div className="h-full w-full overflow-y-auto px-5">
+    <div ref={viewerRef} className="h-full w-full overflow-y-auto px-5">
       <div className="grid">
-        {layers.map((layer) => (
+        {availableWidth > 0 && (
           <PdfCanvasLayer
-            key={layer.id}
-            pdfUrl={layer.pdfUrl}
-            visible={layer.visible}
-            onReady={() => handleLayerReady(layer.id)}
-            onTransitionEnd={() => handleLayerTransitionEnd(layer.id)}
+            key={pdfUrl}
+            pdfUrl={pdfUrl}
+            availableWidth={availableWidth}
+            onReady={() => undefined}
           />
-        ))}
+        )}
       </div>
     </div>
   );
@@ -308,6 +280,11 @@ export default function MarkdownToPDF() {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const autoGenerateTimerRef = useRef<number | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const latestRequestIdRef = useRef(0);
+  const latestPdfUrlRef = useRef<string | null>(null);
+  const lastGeneratedSignatureRef = useRef("");
   useEffect(() => {
     const saved = localStorage.getItem("darkMode");
     if (saved) {
@@ -325,12 +302,20 @@ export default function MarkdownToPDF() {
   }, [darkMode]);
 
   useEffect(() => {
+    latestPdfUrlRef.current = pdfUrl;
+  }, [pdfUrl]);
+
+  useEffect(() => {
     return () => {
-      if (pdfUrl) {
-        URL.revokeObjectURL(pdfUrl);
+      if (autoGenerateTimerRef.current) {
+        window.clearTimeout(autoGenerateTimerRef.current);
+      }
+      abortControllerRef.current?.abort();
+      if (latestPdfUrlRef.current) {
+        URL.revokeObjectURL(latestPdfUrlRef.current);
       }
     };
-  }, [pdfUrl]);
+  }, []);
 
   const generatePdf = useCallback(async (
     markdown?: string,
@@ -338,13 +323,22 @@ export default function MarkdownToPDF() {
     keepCurrentPreview = false,
     colors: PdfColors = pdfColors
   ) => {
-    if (isGenerating) return;
     const markdownToRender = markdown ?? content;
+    const signature = JSON.stringify({ markdown: markdownToRender, theme, colors });
+    if (signature === lastGeneratedSignatureRef.current) return;
+
+    abortControllerRef.current?.abort();
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+    latestRequestIdRef.current += 1;
+    const requestId = latestRequestIdRef.current;
+
     setIsGenerating(true);
     setError(null);
 
-    if (pdfUrl && !keepCurrentPreview) {
-      URL.revokeObjectURL(pdfUrl);
+    if (latestPdfUrlRef.current && !keepCurrentPreview) {
+      URL.revokeObjectURL(latestPdfUrlRef.current);
+      latestPdfUrlRef.current = null;
       setPdfUrl(null);
     }
 
@@ -353,6 +347,7 @@ export default function MarkdownToPDF() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ markdown: markdownToRender, theme, colors }),
+        signal: abortController.signal,
       });
 
       if (!response.ok) {
@@ -362,13 +357,52 @@ export default function MarkdownToPDF() {
 
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
+      if (requestId !== latestRequestIdRef.current || abortController.signal.aborted) {
+        URL.revokeObjectURL(url);
+        return;
+      }
+
+      if (latestPdfUrlRef.current) {
+        URL.revokeObjectURL(latestPdfUrlRef.current);
+      }
+      latestPdfUrlRef.current = url;
+      lastGeneratedSignatureRef.current = signature;
       setPdfUrl(url);
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       setError(err instanceof Error ? err.message : "Failed to generate PDF");
     } finally {
-      setIsGenerating(false);
+      if (requestId === latestRequestIdRef.current) {
+        setIsGenerating(false);
+      }
     }
-  }, [content, isGenerating, pdfColors, pdfTheme, pdfUrl]);
+  }, [content, pdfColors, pdfTheme]);
+
+  const queuePdfGeneration = useCallback((delay = 700) => {
+    if (autoGenerateTimerRef.current) {
+      window.clearTimeout(autoGenerateTimerRef.current);
+    }
+
+    autoGenerateTimerRef.current = window.setTimeout(() => {
+      autoGenerateTimerRef.current = null;
+      if (content.trim()) {
+        generatePdf(content, pdfTheme, true, pdfColors);
+      }
+    }, delay);
+  }, [content, generatePdf, pdfColors, pdfTheme]);
+
+  const generatePdfNow = useCallback(() => {
+    if (autoGenerateTimerRef.current) {
+      window.clearTimeout(autoGenerateTimerRef.current);
+      autoGenerateTimerRef.current = null;
+    }
+    generatePdf(content, pdfTheme, true, pdfColors);
+  }, [content, generatePdf, pdfColors, pdfTheme]);
+
+  useEffect(() => {
+    if (!content.trim()) return;
+    queuePdfGeneration();
+  }, [content, pdfColors, pdfTheme, queuePdfGeneration]);
 
   const handleFile = useCallback((selectedFile: File) => {
     if (!selectedFile.name.endsWith(".md")) {
@@ -384,10 +418,9 @@ export default function MarkdownToPDF() {
         name: selectedFile.name,
         content: text,
       });
-      generatePdf(text);
     };
     reader.readAsText(selectedFile);
-  }, [generatePdf]);
+  }, []);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -398,12 +431,19 @@ export default function MarkdownToPDF() {
   );
 
   const handleReset = useCallback(() => {
+    if (autoGenerateTimerRef.current) {
+      window.clearTimeout(autoGenerateTimerRef.current);
+      autoGenerateTimerRef.current = null;
+    }
+    abortControllerRef.current?.abort();
     setContent(DEFAULT_CONTENT);
     setFile({ name: "untitled.md", content: DEFAULT_CONTENT });
     if (pdfUrl) {
       URL.revokeObjectURL(pdfUrl);
+      latestPdfUrlRef.current = null;
       setPdfUrl(null);
     }
+    lastGeneratedSignatureRef.current = "";
     setError(null);
   }, [pdfUrl]);
 
@@ -412,22 +452,19 @@ export default function MarkdownToPDF() {
     setPdfTheme(theme);
     setPdfColors(themeColors);
     setError(null);
-    generatePdf(content, theme, true, themeColors);
-  }, [content, generatePdf]);
+  }, []);
 
   const handlePdfColorChange = useCallback((key: PdfColorKey, value: string) => {
     const nextColors = { ...pdfColors, [key]: value };
     setPdfColors(nextColors);
     setError(null);
-    generatePdf(content, pdfTheme, true, nextColors);
-  }, [content, generatePdf, pdfColors, pdfTheme]);
+  }, [pdfColors]);
 
   const handleResetPdfColors = useCallback(() => {
     const themeColors = colorsForTheme(pdfTheme);
     setPdfColors(themeColors);
     setError(null);
-    generatePdf(content, pdfTheme, true, themeColors);
-  }, [content, generatePdf, pdfTheme]);
+  }, [pdfTheme]);
 
   return (
     <div className="h-screen overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)' }}>
@@ -764,7 +801,7 @@ export default function MarkdownToPDF() {
               </div>
             </div>
             <ToolbarButton
-              onClick={() => generatePdf()}
+              onClick={generatePdfNow}
               disabled={isGenerating}
               className="disabled:opacity-50"
             >
